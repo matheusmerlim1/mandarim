@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T12:00:00Z",
+  "title": "Design System: 汉语 Mandarim",
+  "extensions": {
+    "colorMeta": {
+      "capa": { "role": "primary", "displayName": "Vinil Vermelho-Sangue", "canonical": "#8a1a1c", "tonalRamp": ["#2a0709", "#430a0c", "#5c0f11", "#6c1113", "#8a1a1c", "#a3282a", "#c9777a", "#efd3d4"] },
+      "ouro": { "role": "primary", "displayName": "Folha de Ouro", "canonical": "#f2d58a", "tonalRamp": ["#3a2c0c", "#6b5322", "#8f7230", "#a8873f", "#c9a659", "#ecca78", "#f2d58a", "#faf0d2"] },
+      "carimbo": { "role": "secondary", "displayName": "Vermelho-Carimbo", "canonical": "#b8231a", "tonalRamp": ["#3a0a07", "#5e120d", "#8e1810", "#b8231a", "#d9503f", "#ff6f5e", "#f6ddd7", "#fdf0ed"] },
+      "lapis": { "role": "tertiary", "displayName": "Lápis Azul-Grafite", "canonical": "#34527a", "tonalRamp": ["#0f1826", "#1b2433", "#263d5c", "#34527a", "#5f7ea8", "#93b3dc", "#dde4ee", "#f1f4f9"] },
+      "papel": { "role": "neutral", "displayName": "Papel-Bíblia", "canonical": "#edece6", "tonalRamp": ["#141312", "#201e1c", "#3b3834", "#7f7a70", "#c4bfb3", "#e2e0d8", "#edece6", "#f7f6f1"] },
+      "tinta": { "role": "neutral", "displayName": "Tinta Preta", "canonical": "#1c1b19", "tonalRamp": ["#0c0b0a", "#1c1b19", "#33312d", "#55514a", "#7f7a70", "#aba69b", "#d4d0c6", "#ecebe5"] }
+    },
+    "typographyMeta": {
+      "hanzi-marca": { "displayName": "Marca", "purpose": "汉语 na capa, em Noto Serif SC 900." },
+      "hanzi-verbete": { "displayName": "Hanzi do verbete", "purpose": "Caractere-chave da unidade." },
+      "headline": { "displayName": "Headline", "purpose": "h1 de cada vista, Source Serif 4." },
+      "title": { "displayName": "Título", "purpose": "Enunciado da lição." },
+      "pinyin": { "displayName": "Pinyin", "purpose": "Romanização em itálico serifado." },
+      "body": { "displayName": "Corpo", "purpose": "Texto corrido e UI em Noto Sans." },
+      "label": { "displayName": "Rótulo", "purpose": "Abas, filtros, botões." }
+    },
+    "shadows": [
+      { "name": "cartao-elevado", "value": "0 1px 2px rgba(28,27,25,.12), 0 6px 18px rgba(28,27,25,.08)", "purpose": "Cartão de novidade e tradutor; única sombra difusa do sistema." },
+      { "name": "capa-queda", "value": "0 2px 10px rgba(40,6,6,.25)", "purpose": "Sombra curta da capa fixa no topo." }
+    ],
+    "motion": [
+      { "name": "expo-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Carimbo, régua de progresso e entradas; equivale a Expo.easeOut no Phaser." },
+      { "name": "press", "value": "120ms ease-out", "purpose": "Pressão de 1px em botões e opções." },
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "Transições e animações CSS reduzidas sob prefers-reduced-motion; Phaser pula as entradas." }
+    ],
+    "breakpoints": [
+      { "name": "celular", "value": "640px" },
+      { "name": "altura-baixa", "value": "760px (max-height)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão de Chamada",
+      "kind": "button",
+      "refersTo": "button-capa",
+      "description": "Vinil vermelho com ouro e filete duplo; CTA principal.",
+      "html": "<button class=\"ds-botao-capa\">Começar</button>",
+      "css": ".ds-botao-capa{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:.6rem 1.4rem;border:0;border-radius:4px;cursor:pointer;font:700 1rem/1 'Noto Sans','Segoe UI',system-ui,sans-serif;letter-spacing:.02em;background:var(--capa,#8a1a1c);color:var(--ouro,#f2d58a);box-shadow:inset 0 0 0 1px var(--ouro-2,#c9a659),inset 0 0 0 3px var(--capa,#8a1a1c),inset 0 0 0 4px var(--ouro-2,#c9a659);transition:transform .12s ease-out,background-color .15s}.ds-botao-capa:hover{background:var(--capa-brilho,#a3282a)}.ds-botao-capa:active{transform:translateY(1px)}.ds-botao-capa:focus-visible{outline:2px solid var(--tinta,#1c1b19);outline-offset:3px}"
+    },
+    {
+      "name": "Botão de Linha",
+      "kind": "button",
+      "refersTo": "button-linha",
+      "description": "Ação secundária em contorno de fio.",
+      "html": "<button class=\"ds-botao-linha\">Pular</button>",
+      "css": ".ds-botao-linha{min-height:46px;padding:.6rem 1.4rem;border:0;border-radius:4px;cursor:pointer;font:700 1rem/1 'Noto Sans','Segoe UI',system-ui,sans-serif;background:transparent;color:var(--tinta,#1c1b19);box-shadow:inset 0 0 0 1px var(--fio-forte,#7f7a70);transition:background-color .15s}.ds-botao-linha:hover{background:var(--papel-2,#e2e0d8)}.ds-botao-linha:focus-visible{outline:2px solid var(--tinta,#1c1b19);outline-offset:3px}"
+    },
+    {
+      "name": "Nó da Trilha (ativo e concluído)",
+      "kind": "custom",
+      "refersTo": "trail-node-active",
+      "description": "Concluído em tinta; ativo em vermelho-carimbo, a única cor viva da trilha.",
+      "html": "<div style=\"display:flex;gap:16px\"><button class=\"ds-no ds-no-feita\">你</button><button class=\"ds-no ds-no-atual\">好</button><button class=\"ds-no ds-no-trancada\" disabled>吗</button></div>",
+      "css": ".ds-no{width:76px;height:76px;border:0;border-radius:6px;display:grid;place-items:center;font:700 2.2rem/1 'Noto Serif SC','Songti SC',serif;cursor:pointer;transition:transform .15s ease-out}.ds-no:hover:not(:disabled){transform:translateY(-2px)}.ds-no-feita{background:var(--tinta,#1c1b19);color:var(--folha,#f7f6f1)}.ds-no-atual{background:var(--carimbo,#b8231a);color:var(--sobre-carimbo,#fff8f0)}.ds-no-trancada{background:var(--papel,#edece6);color:var(--tinta-2,#55514a);box-shadow:inset 0 0 0 1px var(--fio-forte,#7f7a70);cursor:not-allowed}.ds-no:focus-visible{outline:3px solid var(--tinta,#1c1b19);outline-offset:5px}"
+    },
+    {
+      "name": "Aba de Dedo",
+      "kind": "nav",
+      "refersTo": "thumb-tab",
+      "description": "Navegação de unidade na borda direita; a atual alarga.",
+      "html": "<div style=\"display:flex;flex-direction:column;gap:3px;align-items:flex-end\"><a class=\"ds-aba\" href=\"#\">一</a><a class=\"ds-aba ds-aba-atual\" href=\"#\">二</a></div>",
+      "css": ".ds-aba{display:grid;place-items:center;width:40px;height:34px;text-decoration:none;background:var(--capa,#8a1a1c);color:var(--ouro,#f2d58a);border-radius:6px 0 0 6px;font:700 .95rem/1 'Noto Serif SC',serif;box-shadow:inset 3px 0 0 var(--capa-2,#6c1113);transition:width .2s ease-out,background-color .15s}.ds-aba:hover{background:var(--capa-brilho,#a3282a)}.ds-aba-atual{width:52px;background:var(--capa-brilho,#a3282a)}.ds-aba:focus-visible{outline:2px solid var(--tinta,#1c1b19);outline-offset:2px}"
+    },
+    {
+      "name": "Opção de Resposta",
+      "kind": "card",
+      "refersTo": "option",
+      "description": "Opção neutra, certa (carimbo) e errada (lápis).",
+      "html": "<div style=\"display:grid;gap:8px;width:260px\"><button class=\"ds-opcao\"><span class=\"ds-n\">1</span>你好</button><button class=\"ds-opcao ds-certa\"><span class=\"ds-n\">2</span>谢谢</button><button class=\"ds-opcao ds-errada\"><span class=\"ds-n\">3</span>再见</button></div>",
+      "css": ".ds-opcao{display:flex;align-items:center;gap:.8rem;min-height:60px;padding:.7rem 1rem .7rem .8rem;text-align:left;cursor:pointer;background:var(--folha,#f7f6f1);color:var(--tinta,#1c1b19);border:1px solid var(--fio-forte,#7f7a70);border-radius:4px;font:700 1.4rem/1.1 'Noto Serif SC',serif;transition:background-color .12s,transform .12s ease-out}.ds-opcao:hover{background:var(--papel-2,#e2e0d8)}.ds-opcao:active{transform:translateY(1px)}.ds-n{display:grid;place-items:center;width:26px;height:26px;font:600 .8rem/1 'Noto Sans',sans-serif;border:1px solid var(--fio-forte,#7f7a70);border-radius:3px;color:var(--tinta-2,#55514a)}.ds-certa{box-shadow:inset 0 0 0 2px var(--carimbo,#b8231a);background:var(--carimbo-fundo,#f6ddd7)}.ds-errada{box-shadow:inset 0 0 0 2px var(--lapis,#34527a);background:var(--lapis-fundo,#dde4ee);text-decoration:line-through;text-decoration-color:var(--lapis,#34527a)}.ds-opcao:focus-visible{outline:2px solid var(--tinta,#1c1b19);outline-offset:3px}"
+    },
+    {
+      "name": "Campo de Pinyin",
+      "kind": "input",
+      "refersTo": "option",
+      "description": "Entrada de pinyin em itálico serifado.",
+      "html": "<input class=\"ds-campo\" value=\"nǐ hǎo\" aria-label=\"Pinyin\">",
+      "css": ".ds-campo{width:260px;min-height:56px;padding:.6rem .9rem;font:italic 400 1.4rem/1.2 'Source Serif 4',Georgia,serif;color:var(--tinta,#1c1b19);background:var(--folha,#f7f6f1);border:1px solid var(--fio-forte,#7f7a70);border-radius:4px}.ds-campo:focus-visible{outline:2px solid var(--tinta,#1c1b19);outline-offset:2px}"
+    },
+    {
+      "name": "Filtro (pílula)",
+      "kind": "chip",
+      "refersTo": "button-linha",
+      "description": "Filtro de categoria; selecionado em tinta cheia.",
+      "html": "<div style=\"display:flex;gap:6px\"><button class=\"ds-filtro\">Todas</button><button class=\"ds-filtro\" aria-pressed=\"true\">Comida</button></div>",
+      "css": ".ds-filtro{min-height:40px;padding:.4rem .9rem;border:1px solid var(--fio-forte,#7f7a70);border-radius:999px;background:transparent;color:var(--tinta,#1c1b19);cursor:pointer;font:600 .92rem/1 'Noto Sans',sans-serif}.ds-filtro[aria-pressed=true]{background:var(--tinta,#1c1b19);color:var(--folha,#f7f6f1);border-color:var(--tinta,#1c1b19)}.ds-filtro:focus-visible{outline:2px solid var(--tinta,#1c1b19);outline-offset:3px}"
+    },
+    {
+      "name": "Selo de Carimbo",
+      "kind": "custom",
+      "refersTo": "trail-node-active",
+      "description": "Selo vermelho de fim de lição; carimba ao entrar.",
+      "html": "<div class=\"ds-selo\">对</div>",
+      "css": ".ds-selo{display:inline-grid;place-items:center;width:112px;height:112px;font:900 4.2rem/1 'Noto Serif SC',serif;color:var(--carimbo,#b8231a);border:5px solid var(--carimbo,#b8231a);border-radius:10px;transform:rotate(-6deg);animation:ds-carimbar .45s cubic-bezier(.16,1,.3,1) both}@keyframes ds-carimbar{from{transform:rotate(-6deg) scale(1.9);opacity:0}to{transform:rotate(-6deg) scale(1);opacity:1}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Dicionário de Bolso",
+    "overview": "O app é um dicionário Xinhua que virou trilha. A capa é de vinil vermelho-sangue com título em folha de ouro e envolve o topo da tela; o miolo é papel-bíblia frio e acinzentado, com tinta preta e fios de régua de 1px. Cada lição é um verbete, cada unidade uma aba de dedo na borda direita. A interface recusa o mapa de bolinhas coloridas sobre fundo branco do gênero: aqui tudo é impresso, e o que é impresso é tinta sobre papel.\n\nA cor é repartida em duas casas. O vermelho de capa (com o ouro) pertence só à estrutura do livro: cabeçalho, abas de dedo e botões de chamada. O vermelho-carimbo é outro vermelho, reservado ao que é vivo: a etapa ativa da trilha, o carimbo de acerto, o estado de resposta certa e o contorno do tom. Todo o resto, incluindo etapas concluídas, selos 优, grades das lições e ícones, é tinta.\n\nO feedback fala a língua do estudo em papel. Acerto é um carimbo vermelho 对 posto na maior margem livre; erro é um risco de lápis azul-grafite (lápis), nunca vermelho e nunca uma sirene. As ilustrações são Twemoji reimpressos em tempo de execução em duas tintas, sobre uma prancha de papel com moldura de fio.",
+    "keyCharacteristics": [
+      "Capa vermelha e ouro fora, papel e tinta dentro; o vermelho-carimbo é a única cor viva do miolo.",
+      "Hanzi em Song, pinyin em serifa com diacríticos, interface em sans de trabalho.",
+      "Estados por tinta (preenchimento preto, contorno, fio), não por matiz.",
+      "Acerto = carimbo; erro = risco de lápis.",
+      "Tema escuro é o mesmo livro à luz de abajur: papel quase preto, tinta clara, carimbo salmão."
+    ],
+    "rules": [
+      { "name": "The Two Reds Rule", "body": "O vermelho de capa é estrutura, o vermelho-carimbo é estado. Um nunca faz o trabalho do outro: botão de chamada em carimbo ou nó ativo em vinil são erros.", "section": "colors" },
+      { "name": "The Ink Carries It Rule", "body": "Concluído, perfeito (优), lição, ícone: tudo em tinta. O vermelho-carimbo só entra onde há ação ou resposta viva agora.", "section": "colors" },
+      { "name": "The Pencil Is Not Red Rule", "body": "Erro nunca usa vermelho. É lápis azul-grafite, com contorno, fundo e texto riscado, para que acerto e erro se distingam sem depender de matiz.", "section": "colors" },
+      { "name": "The Dictionary Entry Rule", "body": "Hanzi em Song, pinyin em itálico serifado, português em sans. Os três nunca trocam de família entre si.", "section": "typography" },
+      { "name": "The Paper Is Flat Rule", "body": "Superfícies são planas em repouso; separação é fio de 1px ou prancha com moldura, e a única sombra difusa é a do cartão elevado.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do manter o vermelho de capa (#8a1a1c) na estrutura do livro: cabeçalho, abas de dedo e botões de chamada.",
+      "Do reservar o vermelho-carimbo (#b8231a) à etapa ativa, ao carimbo 对, ao estado de resposta certa e ao contorno do tom.",
+      "Do mostrar acerto como carimbo vermelho na maior margem livre e erro como risco de lápis azul-grafite (#34527a).",
+      "Do usar tinta para concluído, 优, grades das lições e ícones.",
+      "Do imprimir ilustrações em duas tintas sobre prancha de papel com moldura de fio; com mais de 12% de vermelho, tudo em tinta.",
+      "Do manter alvos de 44px e contraste AA nos dois temas; estados diferem por forma e contorno, não só por matiz.",
+      "Do usar Expo ease-out e respeitar `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "Don't usar o vermelho de capa para estados vivos, nem o vermelho-carimbo para botões de chamada ou cabeçalho.",
+      "Don't mostrar erro em vermelho.",
+      "Don't usar o mapa de bolinhas coloridas sobre fundo branco do gênero, nem gradiente decorativo no miolo.",
+      "Don't trocar as famílias do verbete: hanzi fora de Song, pinyin fora do itálico serifado.",
+      "Don't pintar ilustrações em cores cheias de emoji; sempre duas tintas."
+    ]
+  }
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>汉语 Mandarim — aprenda chinês em lições curtas</title>
+<meta name="description" content="Aprenda mandarim do zero ao HSK 3 em lições curtas com som, imagens, pinyin, frases e tradutor. Grátis, sem conta.">
+<meta name="theme-color" content="#8a1a1c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%238a1a1c'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23f2d58a' font-family='serif'%3E汉%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Serif+SC:wght@400;700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-chama" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 6 5 11a5 5 0 0 1-10 0c0-2.4 1.2-4 2.5-5.2.2 1.7 1 2.8 2 3.2-.6-3.3 0-6.3.5-9z"/></symbol>
+  <symbol id="i-pincel" viewBox="0 0 24 24"><path d="M20.5 3.5c-3 1.2-8.6 6.4-10.6 9.3l1.3 1.3c2.9-2 8.1-7.6 9.3-10.6zM8.8 14c-2 0-3.3 1.6-3.5 3.6-.1 1.2-.9 2-2.3 2.4 3.6 1 7.6-.3 7.6-4.2z"/></symbol>
+  <symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.8 4.5 7.2 4.5c2 0 3.6 1.2 4.8 2.9 1.2-1.7 2.8-2.9 4.8-2.9 3.4 0 5.6 3.3 4.4 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/></symbol>
+  <symbol id="i-som" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-tartaruga" viewBox="0 0 24 24"><path d="M5 15.5c0-4 3.1-7 7-7s7 3 7 7z" fill="currentColor" stroke="none"/><path d="M19 13.5h2.2c.6 0 1-.6.7-1.1l-.6-1.1M6.5 15.5l-1 2.5M17.5 15.5l1 2.5M4.5 15.5H20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-trocar" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>
+
+<header class="capa">
+  <div class="capa-linha">
+    <a class="marca" href="#trilha">
+      <span class="marca-hz" lang="zh-CN">汉语</span>
+      <span class="marca-pt">Mandarim</span>
+    </a>
+    <ul class="placar" aria-label="Seu progresso">
+      <li title="Sequência de dias estudando"><svg class="ic" aria-hidden="true"><use href="#i-chama"/></svg><span id="p-seq">0</span><span class="sr"> dias seguidos</span></li>
+      <li title="Pontos de hoje / meta do dia"><svg class="ic" aria-hidden="true"><use href="#i-pincel"/></svg><span id="p-xp">0/30</span><span class="sr"> pontos de hoje</span></li>
+      <li title="Vidas"><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg><span id="p-vidas">5</span><span class="sr"> vidas</span></li>
+    </ul>
+  </div>
+  <nav class="abas" aria-label="Seções">
+    <a href="#trilha" data-aba="trilha">Trilha</a>
+    <a href="#frases" data-aba="frases">Frases</a>
+    <a href="#tradutor" data-aba="tradutor">Tradutor</a>
+  </nav>
+</header>
+
+<main id="conteudo" tabindex="-1">
+
+  <!-- Trilha: o dicionário. O Phaser desenha o fio, a grade e os carimbos por trás dos botões. -->
+  <section id="vista-trilha" class="vista" aria-labelledby="t-trilha">
+    <div id="palco-trilha" class="palco-trilha" aria-hidden="true"></div>
+    <div class="folha">
+      <div class="folha-cab">
+        <h1 id="t-trilha">Aprenda mandarim, um verbete por dia</h1>
+        <p class="folha-sub">Do zero ao HSK 3. Ouça, leia o pinyin, monte frases. Cada lição leva de 3 a 5 minutos.</p>
+        <p id="aviso-voz" class="aviso" hidden></p>
+        <p class="continuar-linha"><button id="b-continuar" class="botao botao-capa" type="button">Começar</button> <span id="continuar-rotulo"></span></p>
+      </div>
+      <div id="trilha"></div>
+    </div>
+    <nav id="dedeiras" class="dedeiras" aria-label="Unidades"></nav>
+  </section>
+
+  <!-- Lição -->
+  <section id="vista-licao" class="vista vista-licao" aria-labelledby="enunciado" hidden>
+    <div class="licao-barra">
+      <button id="b-sair" class="botao-icone" type="button" aria-label="Sair da lição"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+      <div class="regua" role="progressbar" aria-label="Progresso da lição" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="regua-tinta"></span></div>
+      <p class="licao-vidas"><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg><span id="l-vidas">5</span><span class="sr"> vidas</span></p>
+    </div>
+    <div class="licao-corpo">
+      <h1 id="enunciado" class="enunciado" tabindex="-1"></h1>
+      <div id="palco-licao" class="palco-licao" role="img" aria-label=""></div>
+      <div id="area" class="area"></div>
+    </div>
+    <div id="rodape-licao" class="rodape-licao">
+      <div class="rodape-dentro">
+        <div id="retorno" class="retorno" role="status" aria-live="polite"></div>
+        <button id="b-verificar" class="botao botao-capa" type="button" disabled>Verificar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fim da lição -->
+  <section id="vista-fim" class="vista vista-fim" aria-labelledby="fim-titulo" hidden>
+    <div class="fim-cartao">
+      <p class="fim-selo" lang="zh-CN" aria-hidden="true">好</p>
+      <h1 id="fim-titulo" tabindex="-1">Lição concluída</h1>
+      <p id="fim-texto"></p>
+      <dl class="fim-numeros">
+        <div><dt>Pontos</dt><dd id="fim-xp">+10</dd></div>
+        <div><dt>Acertos</dt><dd id="fim-acertos">100%</dd></div>
+        <div><dt>Sequência</dt><dd id="fim-seq">1 dia</dd></div>
+      </dl>
+      <button id="b-fim" class="botao botao-capa" type="button">Continuar</button>
+    </div>
+  </section>
+
+  <!-- Frases -->
+  <section id="vista-frases" class="vista" aria-labelledby="t-frases" hidden>
+    <div class="folha folha-texto">
+      <h1 id="t-frases">Frases para usar já</h1>
+      <p class="folha-sub">Toque no alto-falante para ouvir; a tartaruga fala devagar, sílaba por sílaba.</p>
+      <div class="filtros" role="group" aria-label="Filtrar por assunto" id="filtros"></div>
+      <ol id="lista-frases" class="lista-frases"></ol>
+    </div>
+  </section>
+
+  <!-- Tradutor -->
+  <section id="vista-tradutor" class="vista" aria-labelledby="t-trad" hidden>
+    <div class="folha folha-texto">
+      <h1 id="t-trad">Tradutor</h1>
+      <p class="folha-sub">Português e chinês nos dois sentidos, com pinyin de cada caractere e áudio.</p>
+      <form id="f-trad" class="tradutor">
+        <div class="trad-direcao">
+          <span id="trad-de">Português</span>
+          <button id="b-inverter" class="botao-icone" type="button" aria-label="Inverter idiomas"><svg aria-hidden="true"><use href="#i-trocar"/></svg></button>
+          <span id="trad-para">Chinês</span>
+        </div>
+        <label for="trad-texto" class="sr">Texto para traduzir</label>
+        <textarea id="trad-texto" rows="4" maxlength="450" placeholder="Escreva em português. Ex.: Onde fica a estação de metrô?"></textarea>
+        <div class="trad-acoes">
+          <span id="trad-conta" class="trad-conta">0/450</span>
+          <button class="botao botao-capa" type="submit">Traduzir</button>
+        </div>
+      </form>
+      <div id="trad-saida" class="trad-saida" aria-live="polite"></div>
+      <p class="nota">Tradução automática do serviço gratuito MyMemory (limite diário por conexão). Confira frases importantes com alguém que fale chinês.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">
+  <p>Ilustrações: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji (abre em nova aba)</a>, licença CC-BY 4.0, reimpressas em duas tintas. Som: a voz chinesa do seu navegador. Seu progresso fica salvo só neste aparelho.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/phaser@4.2.1/dist/phaser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.29.5/dist/index.js"></script>
+<script type="module" src="js/app.js?v=1"></script>
+
+<!-- === Botao de volta ao portfolio - cole antes de </body> === -->
+<nav aria-label="Portf&oacute;lio">
+<a id="mr-portfolio-btn" href="https://matheusmerlim1.github.io/" target="_blank" rel="noopener"
+   aria-label="Portf&oacute;lio de Matheus Raposo (abre em nova aba)" title="Ver todos os meus projetos">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>
+  </svg>
+  <span>Portf&oacute;lio</span>
+</a>
+</nav>
+<style>
+#mr-portfolio-btn {
+  position: fixed; top: 12px; right: 12px; z-index: 2147483000;
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .42rem .8rem; border-radius: 999px;
+  font: 600 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e8edf5; text-decoration: none; white-space: nowrap;
+  background: rgba(18,24,38,.92);
+  border: 1px solid rgba(88,166,255,.45);
+  box-shadow: 0 2px 12px rgba(0,0,0,.35);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: transform .15s, border-color .15s, background .15s;
+}
+#mr-portfolio-btn:hover {
+  transform: translateY(-1px); color: #fff; text-decoration: none;
+  background: rgba(24,32,50,.96); border-color: #58a6ff;
+}
+#mr-portfolio-btn:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(18,24,38,.92); }
+@media (max-width: 520px) {
+  #mr-portfolio-btn { padding: .45rem; }
+  #mr-portfolio-btn span { display: none; }
+}
+@media print { #mr-portfolio-btn { display: none; } }
+</style>
+<script>
+/* Abre espaco para o botao em vez de cobrir o que ja existia no canto.
+   1) empurra para a esquerda o conteudo da barra que ocupa aquele espaco;
+   2) se ainda sobrar sobreposicao, desloca o proprio item. */
+(function () {
+  var btn = document.getElementById('mr-portfolio-btn');
+  if (!btn) return;
+
+  var desfazer = [];
+
+  function limpar() {
+    for (var i = 0; i < desfazer.length; i++) desfazer[i]();
+    desfazer = [];
+  }
+
+  function guardar(el, prop) {
+    var antes = el.style[prop];
+    desfazer.push(function () { el.style[prop] = antes; });
+  }
+
+  /* item discreto = nao ocupa quase toda a largura; e um controle, rotulo ou icone */
+  function ehItem(el) {
+    if (!el || el === document.body || el === document.documentElement) return false;
+    return el.getBoundingClientRect().width < innerWidth * 0.7;
+  }
+
+  /* sobe ate a barra que contem o item (algo largo o bastante para ter padding) */
+  function barra(el) {
+    for (var n = 0; el && n < 8; n++, el = el.parentElement) {
+      if (el === document.body || el === document.documentElement) return null;
+      if (el.getBoundingClientRect().width >= innerWidth * 0.6) return el;
+    }
+    return null;
+  }
+
+  function encosta(a, b) {
+    return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+  }
+
+  function varrer() {
+    var r = btn.getBoundingClientRect();
+    var y = Math.round(r.top + r.height / 2);
+    var achados = [];
+    btn.style.visibility = 'hidden';
+    for (var x = Math.floor(r.right); x > r.left - 10; x -= 8) {
+      if (x < 1 || x > innerWidth - 1) continue;
+      var sob = document.elementFromPoint(x, y);
+      if (ehItem(sob) && achados.indexOf(sob) < 0) achados.push(sob);
+    }
+    btn.style.visibility = '';
+    return achados;
+  }
+
+  function ajustar() {
+    limpar();
+    var r = btn.getBoundingClientRect();
+    if (!r.width) return;
+    var reserva = Math.ceil(r.width + 20);
+
+    /* 1) padding na barra: desloca o conteudo dela para a esquerda */
+    var barras = [];
+    varrer().forEach(function (item) {
+      var b = barra(item);
+      if (b && barras.indexOf(b) < 0) barras.push(b);
+    });
+    barras.forEach(function (b) {
+      if ((parseFloat(getComputedStyle(b).paddingRight) || 0) >= reserva) return;
+      guardar(b, 'paddingRight');
+      b.style.paddingRight = reserva + 'px';
+    });
+
+    /* 2) o que continuar embaixo do botao (tipicamente position:absolute,
+          que nao anda com padding) e deslocado individualmente */
+    r = btn.getBoundingClientRect();
+    varrer().forEach(function (item) {
+      if (!encosta(item.getBoundingClientRect(), r)) return;
+      var cs = getComputedStyle(item);
+      if (cs.position === 'absolute' || cs.position === 'fixed') {
+        var atual = parseFloat(cs.right);
+        guardar(item, 'right');
+        item.style.right = (isNaN(atual) ? reserva : atual + reserva) + 'px';
+      } else {
+        guardar(item, 'marginRight');
+        item.style.marginRight =
+          ((parseFloat(cs.marginRight) || 0) + reserva) + 'px';
+      }
+    });
+
+    /* 3) rede de seguranca: o que insistir em ficar embaixo do botao e
+          deslocado no proprio elemento. transform sempre move, seja qual
+          for o position, o display ou o container. */
+    for (var tent = 0; tent < 3; tent++) {
+      r = btn.getBoundingClientRect();
+      var teimosos = varrer().filter(function (item) {
+        return encosta(item.getBoundingClientRect(), r);
+      });
+      if (!teimosos.length) break;
+      teimosos.forEach(function (item) {
+        var caixa = item.getBoundingClientRect();
+        var passo = Math.ceil(caixa.right - r.left + 10);
+        if (passo <= 0) return;
+        guardar(item, 'transform');
+        item.style.transform = 'translateX(-' + passo + 'px)';
+      });
+    }
+
+    btn.setAttribute('data-mr-ok', '1');   /* marca que o ajuste ja rodou */
+  }
+
+  var pendente = 0;
+  function agendar() {
+    /* sem requestAnimationFrame de proposito: ele nao dispara quando a pagina
+       esta em aba oculta ou em iframe fora da tela, e as leituras de layout
+       abaixo ja forcam o recalculo sozinhas */
+    clearTimeout(pendente);
+    pendente = setTimeout(ajustar, 60);
+  }
+
+  agendar();
+  addEventListener('DOMContentLoaded', agendar);
+  addEventListener('load', agendar);
+  addEventListener('resize', agendar);
+
+  /* muita pagina monta o cabecalho por JS depois do load; refaz o calculo
+     quando o DOM mudar e em algumas passadas tardias, por seguranca */
+  if (window.MutationObserver) {
+    new MutationObserver(agendar).observe(document.documentElement,
+      { childList: true, subtree: true });
+  }
+  [400, 1200, 3000].forEach(function (t) { setTimeout(agendar, t); });
+})();
+</script>
+<!-- === fim do botao === -->
+</body>
+</html>
