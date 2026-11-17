@@ -309,9 +309,13 @@ export function minutosParaVida(prog, agora = Date.now()) {
 }
 
 // Fecha uma lição. Treino de revisão devolve uma vida.
-export function concluirLicao(prog, licaoId, { erros = 0, treino = false } = {}, agora = Date.now()) {
-  let p = atualizarRelogio(prog, agora);
-  const ganho = XP_LICAO + (erros === 0 ? XP_PERFEITA : 0);
+const ganharVida = (p) => {
+  p.vidas = Math.min(VIDAS_MAX, p.vidas + 1);
+  if (p.vidas >= VIDAS_MAX) p.vidaDesde = null;
+};
+
+// Soma pontos, mantém a sequência de dias e dá a vida da meta do dia (uma vez por dia).
+function registrarEstudo(p, ganho, agora) {
   p.xp += ganho;
   p.xpHoje += ganho;
   const hoje = diaDe(agora);
@@ -319,14 +323,99 @@ export function concluirLicao(prog, licaoId, { erros = 0, treino = false } = {},
     p.sequencia = p.ultimoDia && diasEntre(p.ultimoDia, hoje) === 1 ? p.sequencia + 1 : 1;
     p.ultimoDia = hoje;
   }
+  if (p.xpHoje >= META_DIARIA && p.bonusMeta !== hoje) {
+    p.bonusMeta = hoje;
+    ganharVida(p);
+    return true;
+  }
+  return false;
+}
+
+export function concluirLicao(prog, licaoId, { erros = 0, treino = false } = {}, agora = Date.now()) {
+  const p = atualizarRelogio(prog, agora);
+  const ganho = XP_LICAO + (erros === 0 ? XP_PERFEITA : 0);
+  const vidaMeta = registrarEstudo(p, ganho, agora);
   if (!treino) {
     const antes = p.feitas[licaoId];
     p.feitas[licaoId] = { vezes: (antes?.vezes || 0) + 1, perfeita: erros === 0 || !!antes?.perfeita };
   } else {
-    p.vidas = Math.min(VIDAS_MAX, p.vidas + 1);
-    if (p.vidas >= VIDAS_MAX) p.vidaDesde = null;
+    ganharVida(p);
   }
-  return { progresso: p, ganho };
+  return { progresso: p, ganho, vidaMeta };
+}
+
+// ---------- vidas: timer e maneiras de ganhar ----------
+export const XP_TREINO_VIDA = 5;
+export const TREINOS_VIDA = {
+  relampago: { titulo: 'Treino relâmpago', perguntas: 5, minimo: 4 },
+  tons: { titulo: 'Desafio dos tons', perguntas: 6, minimo: 5 },
+};
+
+// Segundos até a próxima vida e até completar todas (0 quando já estão cheias).
+export function segundosParaVida(prog, agora = Date.now()) {
+  if (prog.vidas >= VIDAS_MAX || !prog.vidaDesde) return 0;
+  return Math.max(0, Math.ceil((prog.vidaDesde + MINUTOS_POR_VIDA * 60000 - agora) / 1000));
+}
+export function segundosParaTodas(prog, agora = Date.now()) {
+  if (prog.vidas >= VIDAS_MAX) return 0;
+  return segundosParaVida(prog, agora) + (VIDAS_MAX - prog.vidas - 1) * MINUTOS_POR_VIDA * 60;
+}
+export function formatarTempo(seg) {
+  const s = Math.max(0, Math.round(seg));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}
+
+// Palavras já estudadas (das lições de palavras concluídas); sem nenhuma, as primeiras do curso.
+export function palavrasEstudadas(unidades, trilha, prog) {
+  const out = [];
+  for (const l of trilha) {
+    if (l.tipo !== 'palavras' || !prog.feitas[l.id]) continue;
+    l.palavras.forEach((i) => out.push(palavra(unidades[l.unidade], i, l.unidade)));
+  }
+  if (out.length >= 4) return out;
+  const base = trilha.filter((l) => l.tipo === 'palavras').slice(0, 2);
+  return base.flatMap((l) => l.palavras.map((i) => palavra(unidades[l.unidade], i, l.unidade)));
+}
+
+// Monta um treino que vale vida: 'relampago' (palavras estudadas) ou 'tons'.
+export function gerarTreinoVida(modo, unidades, trilha, prog, { semente, temVoz = true } = {}) {
+  const rnd = criarSorteio(semente);
+  const ouve = (texto) => (typeof temVoz === 'function' ? temVoz(texto) : !!temVoz);
+  const cfg = TREINOS_VIDA[modo];
+  const estudadas = palavrasEstudadas(unidades, trilha, prog);
+  const todas = todasPalavras(unidades);
+  const licao = { id: `vida-${modo}`, tipo: 'treino-vida', modo, unidade: estudadas[0]?.u ?? 0, titulo: cfg.titulo, palavras: [] };
+  let ex;
+  if (modo === 'tons') {
+    const pool = [
+      ...estudadas.filter(ehUmaSilaba),
+      ...TREINO_TONS.map(([h, p, pt]) => ({ h, p, pt, img: null, u: 0, i: -1 })),
+    ];
+    const vistos = new Set();
+    ex = rnd.embaralhar(pool).filter((p) => !vistos.has(p.h) && vistos.add(p.h)).slice(0, cfg.perguntas)
+      .map((p) => ({ tipo: 'tom', palavra: p, resposta: tomDaSilaba(p.p) }));
+  } else {
+    const tipos = ['hanziPt', 'ptHanzi', 'ouvir', 'pinyin', 'ptHanzi'];
+    ex = rnd.embaralhar(estudadas).slice(0, cfg.perguntas).map((p, k) => {
+      let t = tipos[k % tipos.length];
+      if (t === 'ouvir' && !ouve(p.h)) t = 'hanziPt';
+      return exercicioPalavra(t, p, estudadas, todas, rnd);
+    });
+  }
+  return { licao, exercicios: ex, minimo: Math.min(cfg.minimo, ex.length) };
+}
+
+// Fecha um treino que vale vida: com o mínimo de acertos de primeira, +1 vida.
+export function concluirTreinoVida(prog, { acertos, total, minimo }, agora = Date.now()) {
+  const p = atualizarRelogio(prog, agora);
+  const passou = acertos >= minimo;
+  const cheias = p.vidas >= VIDAS_MAX;
+  const vidaMeta = registrarEstudo(p, XP_TREINO_VIDA, agora);
+  if (passou && !cheias) ganharVida(p);
+  return { progresso: p, ganho: XP_TREINO_VIDA, passou, ganhouVida: passou && !cheias, vidaMeta, total };
 }
 
 export function lerProgresso(texto) {

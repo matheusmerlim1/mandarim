@@ -161,3 +161,53 @@ test('sílabas do pinyin batem com o número de caracteres', () => {
   assert.equal(hz('你好'), 2);
   assert.deepEqual(erros, []);
 });
+
+test('timer das vidas', () => {
+  const t0 = new Date(2026, 10, 17, 9, 0).getTime();
+  let p = R.perderVida(R.perderVida(R.progressoNovo(), t0), t0);
+  assert.equal(R.segundosParaVida(p, t0), 1200);
+  assert.equal(R.segundosParaTodas(p, t0), 2400);
+  assert.equal(R.segundosParaVida(p, t0 + 61000), 1139);
+  assert.equal(R.formatarTempo(1139), '18:59');
+  assert.equal(R.formatarTempo(3725), '1:02:05');
+  assert.equal(R.segundosParaTodas(R.progressoNovo(), t0), 0);
+});
+
+test('meta do dia dá uma vida, uma vez por dia', () => {
+  const t0 = new Date(2026, 10, 17, 9, 0).getTime();
+  let p = R.perderVida(R.perderVida(R.progressoNovo(), t0), t0);
+  let r = R.concluirLicao(p, 'a', { erros: 0 }, t0); // 15
+  assert.equal(r.vidaMeta, false);
+  r = R.concluirLicao(r.progresso, 'b', { erros: 0 }, t0); // 30
+  assert.equal(r.vidaMeta, true);
+  assert.equal(r.progresso.vidas, 4);
+  r = R.concluirLicao(r.progresso, 'c', { erros: 0 }, t0);
+  assert.equal(r.vidaMeta, false);
+  assert.equal(r.progresso.vidas, 4);
+});
+
+test('treinos que valem vida', () => {
+  const trilha = R.montarTrilha(UNIDADES);
+  const t0 = new Date(2026, 10, 17, 9, 0).getTime();
+  for (const modo of ['relampago', 'tons']) {
+    for (const prog of [R.progressoNovo(), { ...R.progressoNovo(), feitas: { [trilha[0].id]: { vezes: 1 }, [trilha[3].id]: { vezes: 1 } } }]) {
+      const t = R.gerarTreinoVida(modo, UNIDADES, trilha, prog, { semente: 9, temVoz: false });
+      assert.equal(t.exercicios.length, R.TREINOS_VIDA[modo].perguntas, modo);
+      for (const e of t.exercicios) {
+        assert.notEqual(e.tipo, 'ouvir');
+        if (modo === 'tons') assert.equal(e.tipo, 'tom');
+      }
+    }
+  }
+  let p = R.perderVida(R.progressoNovo(), t0);
+  let r = R.concluirTreinoVida(p, { acertos: 3, total: 5, minimo: 4 }, t0);
+  assert.equal(r.ganhouVida, false);
+  assert.equal(r.progresso.vidas, 4);
+  r = R.concluirTreinoVida(p, { acertos: 4, total: 5, minimo: 4 }, t0);
+  assert.equal(r.ganhouVida, true);
+  assert.equal(r.progresso.vidas, 5);
+  assert.equal(r.progresso.vidaDesde, null);
+  r = R.concluirTreinoVida(r.progresso, { acertos: 5, total: 5, minimo: 4 }, t0);
+  assert.equal(r.ganhouVida, false, 'vidas cheias não passam de 5');
+  assert.equal(r.progresso.vidas, 5);
+});

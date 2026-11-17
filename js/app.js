@@ -1,8 +1,8 @@
-import { UNIDADES, NIVEIS, GUIA } from './dados.js?v=2';
-import * as R from './regras.js?v=2';
-import { prepararVoz, podeOuvir, falar, falarPt } from './voz.js?v=2';
-import { traduzir, pinyinPorCaractere, pinyinFrase as pinyinTexto, temChines } from './tradutor.js?v=2';
-import { criarJogo, CenaTrilha, CenaLicao } from './cenas.js?v=2';
+import { UNIDADES, NIVEIS, GUIA } from './dados.js?v=3';
+import * as R from './regras.js?v=3';
+import { prepararVoz, podeOuvir, falar, falarPt } from './voz.js?v=3';
+import { traduzir, pinyinPorCaractere, pinyinFrase as pinyinTexto, temChines } from './tradutor.js?v=3';
+import { criarJogo, CenaTrilha, CenaLicao } from './cenas.js?v=3';
 
 const $ = (s, el = document) => el.querySelector(s);
 const CHAVE = 'mandarim.v1';
@@ -54,9 +54,38 @@ function placar() {
   $('#p-seq').textContent = prog.sequencia;
   $('#p-xp').textContent = `${Math.min(prog.xpHoje, 999)}/${R.META_DIARIA}`;
   $('#p-vidas').textContent = prog.vidas;
-  const min = R.minutosParaVida(prog);
-  $('#p-vidas').parentElement.title = min ? `Vidas — a próxima volta em ${min} min` : 'Vidas';
   $('#l-vidas').textContent = prog.vidas;
+  atualizarTimer();
+}
+
+// Relógio das vidas: cabeçalho, faixa da trilha, barra da lição e página Vidas.
+function atualizarTimer() {
+  const cheias = prog.vidas >= R.VIDAS_MAX;
+  const prox = R.formatarTempo(R.segundosParaVida(prog));
+  $('#p-timer').textContent = cheias ? '' : prox;
+  $('#l-timer').textContent = cheias ? '' : `+1 em ${prox}`;
+  const faixa = $('#faixa-vidas');
+  faixa.hidden = cheias;
+  if (!cheias) {
+    faixa.innerHTML = `<span>Vidas: ${prog.vidas} de ${R.VIDAS_MAX}. A próxima volta em <strong>${prox}</strong>.</span> <a href="#vidas">Ganhar vidas agora</a>`;
+  }
+  if (!$('#vista-vidas').hidden) desenharVidas();
+}
+
+let avisoVidas = '';
+function desenharVidas() {
+  $('#vidas-coracoes').innerHTML = Array.from({ length: R.VIDAS_MAX }, (_, k) =>
+    `<svg class="${k < prog.vidas ? 'cheio' : 'vazio'}"><use href="#i-coracao"/></svg>`).join('');
+  const cheias = prog.vidas >= R.VIDAS_MAX;
+  const todas = R.segundosParaTodas(prog);
+  $('#vidas-estado').innerHTML = (avisoVidas ? `<strong>${esc(avisoVidas)}</strong> ` : '') + (cheias
+    ? `Suas ${R.VIDAS_MAX} vidas estão cheias. Os treinos abaixo continuam valendo pontos.`
+    : `Você tem ${prog.vidas} de ${R.VIDAS_MAX} vidas. A próxima volta em <strong>${R.formatarTempo(R.segundosParaVida(prog))}</strong>${
+      prog.vidas < R.VIDAS_MAX - 1 ? `; todas em <strong>${R.formatarTempo(todas)}</strong>` : ''}. Uma vida volta a cada ${R.MINUTOS_POR_VIDA} minutos.`);
+  const hoje = R.diaDe(Date.now());
+  $('#vidas-meta').textContent = prog.bonusMeta === hoje
+    ? 'Você já ganhou a vida da meta hoje. Amanhã tem outra.'
+    : `Chegue a ${R.META_DIARIA} pontos hoje e ganhe uma vida (uma vez por dia). Faltam ${Math.max(0, R.META_DIARIA - prog.xpHoje)} pontos.`;
 }
 
 // ---------- trilha ----------
@@ -165,7 +194,7 @@ function iniciarJogoTrilha() {
 }
 
 // ---------- vistas ----------
-const VISTAS = ['trilha', 'frases', 'tradutor', 'licao', 'fim'];
+const VISTAS = ['trilha', 'frases', 'tradutor', 'vidas', 'licao', 'fim'];
 function mostrarVista(nome, { focar = true } = {}) {
   VISTAS.forEach((v) => { $(`#vista-${v}`).hidden = v !== nome; });
   document.body.classList.toggle('em-licao', nome === 'licao');
@@ -174,11 +203,19 @@ function mostrarVista(nome, { focar = true } = {}) {
   });
   if (jogoTrilha) { if (nome === 'trilha') jogoTrilha.loop.wake(); else jogoTrilha.loop.sleep(); }
   if (nome === 'trilha') requestAnimationFrame(enviarNos);
-  if (focar && (nome === 'frases' || nome === 'tradutor')) $(`#vista-${nome} h1`).focus?.();
+  if (nome === 'vidas') desenharVidas();
+  if (nome === 'frases' || nome === 'tradutor' || nome === 'vidas' || nome === 'fim') window.scrollTo(0, 0);
+  if (focar && (nome === 'frases' || nome === 'tradutor' || nome === 'vidas')) $(`#vista-${nome} h1`).focus?.();
 }
 
 function rota() {
   const h = location.hash.slice(1);
+  if (h === 'vidas') {
+    if (!$('#vista-licao').hidden) return;
+    L = null;
+    return mostrarVista('vidas');
+  }
+  avisoVidas = '';
   if (h === 'frases' || h === 'tradutor') return mostrarVista(h);
   if (!$('#vista-licao').hidden || !$('#vista-fim').hidden) return;
   mostrarVista('trilha', { focar: false });
@@ -193,12 +230,22 @@ function iniciarLicao(i) {
   const treino = !!prog.feitas[licao.id];
   prog = R.atualizarRelogio(prog);
   if (prog.vidas <= 0 && !treino) {
-    const min = R.minutosParaVida(prog);
-    avisoTrilha(`Suas vidas acabaram. Pratique de novo uma lição já concluída para ganhar uma vida, ou espere ${min} min.`);
+    avisoVidas = 'Suas vidas acabaram.';
+    location.hash = '#vidas';
     return;
   }
   const fila = R.gerarExercicios(licao, UNIDADES, { semente: Date.now(), temVoz: podeOuvir });
-  L = { i, licao, treino, fila, pos: 0, erros: 0, total: fila.filter((e) => e.tipo !== 'novo').length, resposta: null, conferido: false, refeitos: new Set() };
+  comecar({ i, licao, treino, fila });
+}
+
+function iniciarTreinoVida(modo) {
+  const t = R.gerarTreinoVida(modo, UNIDADES, trilha, prog, { semente: Date.now(), temVoz: podeOuvir });
+  comecar({ i: null, licao: t.licao, treino: true, fila: t.exercicios, vidaTreino: { minimo: t.minimo } });
+}
+
+function comecar({ i, licao, treino, fila, vidaTreino = null }) {
+  const total = fila.filter((e) => e.tipo !== 'novo').length;
+  L = { i, licao, treino, vidaTreino, fila, pos: 0, erros: 0, errosPrimeira: 0, totalInicial: fila.length, total, resposta: null, conferido: false, refeitos: new Set() };
   mostrarVista('licao');
   window.scrollTo(0, 0);
   if (!jogoLicao && window.Phaser) {
@@ -207,13 +254,6 @@ function iniciarLicao(i) {
   } else {
     mostrarExercicio();
   }
-}
-
-function avisoTrilha(texto) {
-  const a = $('#aviso-voz');
-  a.textContent = texto;
-  a.hidden = false;
-  a.scrollIntoView({ block: 'center' });
 }
 
 function botaoSom(texto, rotulo = 'Ouvir', grande = false) {
@@ -409,6 +449,7 @@ function verificar() {
     jogoLicao?.events.emit('acerto');
   } else {
     L.erros++;
+    if (L.pos < L.totalInicial) L.errosPrimeira++;
     rod.classList.add('erro');
     $('#retorno').innerHTML = `<strong>Resposta certa:</strong><p>${respostaCertaHtml(ex)}</p>`;
     jogoLicao?.events.emit('erro');
@@ -442,8 +483,34 @@ function continuar() {
 
 function terminar(ok) {
   const primeiraVez = !L.treino;
+  $('#b-fim-vidas').hidden = true;
+  if (ok && L.vidaTreino) {
+    const total = L.fila.slice(0, L.totalInicial).filter((e) => e.tipo !== 'novo').length;
+    const acertos = total - L.errosPrimeira;
+    const r = R.concluirTreinoVida(prog, { acertos, total, minimo: L.vidaTreino.minimo });
+    prog = r.progresso;
+    salvar();
+    $('#fim-titulo').textContent = r.ganhouVida ? 'Você ganhou uma vida!' : r.passou ? 'Treino concluído' : 'Quase lá';
+    $('.fim-selo').textContent = r.ganhouVida ? '命' : '好';
+    $('.fim-selo').classList.remove('duplo');
+    $('#fim-texto').textContent = (r.ganhouVida
+      ? `Acertou ${acertos} de ${total} de primeira. Agora você tem ${prog.vidas} vidas.`
+      : r.passou ? `Acertou ${acertos} de ${total}. Suas vidas já estavam cheias, então valeu pontos.`
+        : `Acertou ${acertos} de ${total} de primeira; precisa de ${L.vidaTreino.minimo} para ganhar a vida. Tente de novo.`)
+      + (r.vidaMeta ? ' A meta do dia também deu uma vida.' : '');
+    $('#fim-xp').textContent = `+${r.ganho}`;
+    $('#b-fim-vidas').hidden = r.ganhouVida;
+    $('#b-fim-vidas').textContent = 'Tentar outro treino';
+    $('#fim-acertos').textContent = Math.round((acertos / Math.max(1, total)) * 100) + '%';
+    $('#fim-seq').textContent = `${prog.sequencia} ${prog.sequencia === 1 ? 'dia' : 'dias'}`;
+    L.final = { ok, carimbar: null, vidas: true };
+    placar();
+    mostrarVista('fim');
+    $('#fim-titulo').focus();
+    return;
+  }
   if (ok) {
-    const { progresso, ganho } = R.concluirLicao(prog, L.licao.id, { erros: L.erros, treino: L.treino });
+    const { progresso, ganho, vidaMeta } = R.concluirLicao(prog, L.licao.id, { erros: L.erros, treino: L.treino });
     prog = progresso;
     salvar();
     $('#fim-titulo').textContent = L.erros === 0 ? 'Lição perfeita!' : 'Lição concluída';
@@ -451,14 +518,17 @@ function terminar(ok) {
     $('.fim-selo').classList.remove('duplo');
     $('#fim-texto').textContent = L.treino
       ? 'Treino feito: você ganhou uma vida de volta.'
-      : prog.xpHoje >= R.META_DIARIA ? 'Meta do dia cumprida. Volte amanhã para manter a sequência.' : `Faltam ${R.META_DIARIA - prog.xpHoje} pontos para a meta de hoje.`;
+      : vidaMeta ? 'Meta do dia cumprida: você ganhou uma vida extra!'
+        : prog.xpHoje >= R.META_DIARIA ? 'Meta do dia cumprida. Volte amanhã para manter a sequência.' : `Faltam ${R.META_DIARIA - prog.xpHoje} pontos para a meta de hoje (ela vale uma vida).`;
     $('#fim-xp').textContent = `+${ganho}`;
   } else {
     $('#fim-titulo').textContent = 'Acabaram as vidas';
     $('.fim-selo').textContent = '加油';
     $('.fim-selo').classList.add('duplo');
-    $('#fim-texto').textContent = `Pratique uma lição já concluída para ganhar vidas, ou espere ${R.minutosParaVida(prog)} min. 加油 (jiāyóu) = força!`;
+    $('#fim-texto').textContent = `A próxima vida volta em ${R.formatarTempo(R.segundosParaVida(prog))}. Ou ganhe uma agora com um treino rápido. 加油 (jiāyóu) = força!`;
     $('#fim-xp').textContent = '+0';
+    $('#b-fim-vidas').hidden = false;
+    $('#b-fim-vidas').textContent = 'Ganhar vidas';
   }
   const pct = Math.round((Math.max(0, L.total - L.erros) / Math.max(1, L.total)) * 100);
   $('#fim-acertos').textContent = pct + '%';
@@ -633,6 +703,7 @@ document.addEventListener('click', (e) => {
     return;
   }
   if (t.classList.contains('no')) return iniciarLicao(Number(t.dataset.i));
+  if (t.dataset.treinoVida) return iniciarTreinoVida(t.dataset.treinoVida);
   if (t.dataset.cat) { filtro = t.dataset.cat; desenharFrases(); $(`#filtros [data-cat="${CSS.escape(filtro)}"]`).focus(); return; }
   if (t.closest('#area')) {
     if (t.classList.contains('peca')) return cliqueMontar(t);
@@ -643,7 +714,11 @@ document.addEventListener('click', (e) => {
 
 $('#b-verificar').addEventListener('click', verificar);
 $('#b-sair').addEventListener('click', () => { if (L) L.final = null; voltarTrilha(); });
-$('#b-fim').addEventListener('click', voltarTrilha);
+$('#b-fim').addEventListener('click', () => {
+  if (L?.final?.vidas) { L = null; location.hash = '#vidas'; if ($('#vista-vidas').hidden) mostrarVista('vidas'); return; }
+  voltarTrilha();
+});
+$('#b-fim-vidas').addEventListener('click', () => { L = null; });
 $('#b-continuar').addEventListener('click', () => {
   const i = R.indiceAtual(trilha, prog);
   iniciarLicao(i >= trilha.length ? Math.floor(Math.random() * trilha.length) : i);
@@ -681,7 +756,12 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
   jogoTrilha?.events.emit('tema');
   jogoLicao?.events.emit('tema');
 });
-setInterval(() => { prog = R.atualizarRelogio(prog); placar(); }, 60000);
+// relógio das vidas: a cada segundo; quando uma vida volta, salva
+setInterval(() => {
+  const antes = prog.vidas;
+  prog = R.atualizarRelogio(prog);
+  if (prog.vidas !== antes) { salvar(); placar(); } else atualizarTimer();
+}, 1000);
 
 // ---------- início ----------
 desenharTrilha();

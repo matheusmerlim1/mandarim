@@ -3,7 +3,7 @@
 // o fio da trilha, a grade 田字格, o carimbo do acerto e o risco de lápis do erro.
 // Cada caractere é pintado com a cor do seu tom; o fio feito leva a cor da unidade.
 
-import { tonsPorCaractere } from './regras.js?v=2';
+import { tonsPorCaractere } from './regras.js?v=3';
 
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
 const FONTE_HZ = '"Noto Serif SC", "Songti SC", "SimSun", serif';

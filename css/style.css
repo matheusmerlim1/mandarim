@@ -127,6 +127,29 @@ button { font: inherit; color: inherit; }
 .marca-pt { font: 600 1.05rem/1 var(--f-py); letter-spacing: .14em; text-transform: uppercase; }
 .placar { display: flex; gap: 1.1rem; list-style: none; margin: 0; padding: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
 .placar li { display: inline-flex; align-items: center; gap: .35rem; }
+.placar-vidas { display: inline-flex; align-items: center; gap: .35rem; min-height: 32px; padding: .15rem .5rem; margin: -.15rem -.5rem; border-radius: 999px; text-decoration: none; }
+.placar-vidas:hover { background: var(--capa-brilho); }
+.placar-vidas:focus-visible { outline: 2px solid var(--ouro); outline-offset: 1px; }
+.placar-timer { font-weight: 600; font-size: .85rem; opacity: .95; }
+.placar-timer:not(:empty)::before { content: "· "; }
+.faixa-vidas { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin: 0 0 1rem; padding: .6rem .9rem; border: 1px solid var(--fio-forte); background: var(--folha); border-radius: 4px; font-size: .95rem; }
+.faixa-vidas strong { font-variant-numeric: tabular-nums; }
+.faixa-vidas a { font-weight: 700; }
+.licao-timer { font-weight: 600; font-size: .85rem; color: var(--tinta-2); margin-left: .3rem; font-variant-numeric: tabular-nums; }
+.vidas-coracoes { display: flex; gap: .4rem; margin: .5rem 0 .8rem; }
+.vidas-coracoes svg { width: 38px; height: 38px; }
+.vidas-coracoes .cheio { fill: var(--t1); }
+.vidas-coracoes .vazio { fill: none; stroke: var(--fio-forte); stroke-width: 1.6; }
+.vidas-estado { font-size: 1.1rem; margin: 0 0 2rem; max-width: 60ch; }
+.vidas-estado strong { font-variant-numeric: tabular-nums; font-size: 1.25rem; }
+.vidas-sub { font: 700 1.3rem/1.2 var(--f-py); margin: 0 0 .6rem; }
+.ganhos { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--tinta); }
+.ganhos li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.5rem; padding: 1.1rem 0; border-bottom: 1px solid var(--fio); }
+.ganho-texto { flex: 1 1 320px; }
+.ganhos h3 { margin: 0 0 .25rem; font: 700 1.1rem/1.3 var(--f-ui); }
+.ganhos p { margin: 0; color: var(--tinta-2); max-width: 62ch; }
+.ganho-premio { display: inline-block; margin-left: .4rem; padding: .1rem .5rem; border-radius: 999px; font: 700 .8rem/1.4 var(--f-ui); color: var(--sobre-carimbo); background: var(--carimbo); vertical-align: .1em; }
+.fim-botoes { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin: 0; }
 
 .abas {
   max-width: 1080px; margin: 0 auto; display: flex; gap: .25rem;

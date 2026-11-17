@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Serif+SC:wght@400;700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="css/style.css?v=2">
+<link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -36,7 +36,7 @@
     <ul class="placar" aria-label="Seu progresso">
       <li title="Sequência de dias estudando"><svg class="ic" aria-hidden="true"><use href="#i-chama"/></svg><span id="p-seq">0</span><span class="sr"> dias seguidos</span></li>
       <li title="Pontos de hoje / meta do dia"><svg class="ic" aria-hidden="true"><use href="#i-pincel"/></svg><span id="p-xp">0/30</span><span class="sr"> pontos de hoje</span></li>
-      <li title="Vidas"><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg><span id="p-vidas">5</span><span class="sr"> vidas</span></li>
+      <li><a class="placar-vidas" href="#vidas" title="Vidas: ver o tempo e como ganhar mais"><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg><span id="p-vidas">5</span><span class="sr"> vidas</span><span id="p-timer" class="placar-timer"></span></a></li>
     </ul>
   </div>
   <nav class="abas" aria-label="Seções">
@@ -61,7 +61,7 @@
           <span class="t3"><b lang="zh-Latn-pinyin">mǎ</b> 3º desce e sobe</span>
           <span class="t4"><b lang="zh-Latn-pinyin">mà</b> 4º cai</span>
           <span class="t5"><b lang="zh-Latn-pinyin">ma</b> neutro</span></p>
-        <p id="aviso-voz" class="aviso" hidden></p>
+        <p id="faixa-vidas" class="faixa-vidas" hidden></p>
         <p class="continuar-linha"><button id="b-continuar" class="botao botao-capa" type="button">Começar</button> <span id="continuar-rotulo"></span></p>
       </div>
       <div id="trilha"></div>
@@ -74,7 +74,7 @@
     <div class="licao-barra">
       <button id="b-sair" class="botao-icone" type="button" aria-label="Sair da lição"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
       <div class="regua" role="progressbar" aria-label="Progresso da lição" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="regua-tinta"></span></div>
-      <p class="licao-vidas"><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg><span id="l-vidas">5</span><span class="sr"> vidas</span></p>
+      <p class="licao-vidas"><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg><span id="l-vidas">5</span><span class="sr"> vidas</span><span id="l-timer" class="licao-timer"></span></p>
     </div>
     <div class="licao-corpo">
       <h1 id="enunciado" class="enunciado" tabindex="-1"></h1>
@@ -100,7 +100,47 @@
         <div><dt>Acertos</dt><dd id="fim-acertos">100%</dd></div>
         <div><dt>Sequência</dt><dd id="fim-seq">1 dia</dd></div>
       </dl>
-      <button id="b-fim" class="botao botao-capa" type="button">Continuar</button>
+      <p class="fim-botoes"><button id="b-fim" class="botao botao-capa" type="button">Continuar</button>
+        <a id="b-fim-vidas" class="botao botao-linha" href="#vidas" hidden>Ganhar vidas</a></p>
+    </div>
+  </section>
+
+  <!-- Vidas: tempo até voltar e maneiras de ganhar -->
+  <section id="vista-vidas" class="vista" aria-labelledby="t-vidas" hidden>
+    <div class="folha folha-texto">
+      <h1 id="t-vidas">Vidas</h1>
+      <p id="vidas-coracoes" class="vidas-coracoes" aria-hidden="true"></p>
+      <p id="vidas-estado" class="vidas-estado"></p>
+      <h2 class="vidas-sub">Ganhe vidas agora</h2>
+      <ol class="ganhos">
+        <li>
+          <div class="ganho-texto">
+            <h3>Treino relâmpago <span class="ganho-premio">+1 vida</span></h3>
+            <p>5 perguntas com palavras que você já estudou. Acerte 4 de primeira e ganhe uma vida. Errar aqui não gasta vida.</p>
+          </div>
+          <button class="botao botao-capa" type="button" data-treino-vida="relampago">Fazer o treino</button>
+        </li>
+        <li>
+          <div class="ganho-texto">
+            <h3>Desafio dos tons <span class="ganho-premio">+1 vida</span></h3>
+            <p>Ouça 6 sílabas e diga o tom de cada uma. Acerte 5 e ganhe uma vida.</p>
+          </div>
+          <button class="botao botao-capa" type="button" data-treino-vida="tons">Fazer o desafio</button>
+        </li>
+        <li>
+          <div class="ganho-texto">
+            <h3>Meta do dia <span class="ganho-premio">+1 vida</span></h3>
+            <p id="vidas-meta">Chegue a 30 pontos hoje e ganhe uma vida, uma vez por dia.</p>
+          </div>
+        </li>
+        <li>
+          <div class="ganho-texto">
+            <h3>Praticar uma lição feita <span class="ganho-premio">+1 vida</span></h3>
+            <p>Refaça qualquer lição já concluída da trilha (os quadrados coloridos). Errar não gasta vida.</p>
+          </div>
+          <a class="botao botao-linha" href="#trilha">Ir para a trilha</a>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -144,7 +184,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/phaser@4.2.1/dist/phaser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.29.5/dist/index.js"></script>
-<script type="module" src="js/app.js?v=2"></script>
+<script type="module" src="js/app.js?v=3"></script>
 
 <!-- === Botao de volta ao portfolio - cole antes de </body> === -->
 <nav aria-label="Portf&oacute;lio">
