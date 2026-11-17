@@ -1,13 +1,14 @@
 /* global Phaser */
 // Cenas Phaser. Os controles ficam no HTML; o canvas desenha o que é do dicionário:
 // o fio da trilha, a grade 田字格, o carimbo do acerto e o risco de lápis do erro.
+// Cada caractere é pintado com a cor do seu tom; o fio feito leva a cor da unidade.
+
+import { tonsPorCaractere } from './regras.js?v=2';
 
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
 const FONTE_HZ = '"Noto Serif SC", "Songti SC", "SimSun", serif';
 const FONTE_PY = '"Source Serif 4", Georgia, serif';
-const TINTA_IMPRESSA = 0x1c1b19;
 const PAPEL_PRANCHA = 0xf7f6f1;
-const VERMELHO_IMPRESSO = 0xb8231a;
 const reduzir = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function cores() {
@@ -18,6 +19,7 @@ export function cores() {
     tinta: c('--tinta'), tinta2: c('--tinta-2'), fio: c('--fio'), fioForte: c('--fio-forte'),
     carimbo: c('--carimbo'), lapis: c('--lapis'), folha: c('--folha'), papel: c('--papel'),
     css: { tinta: s('--tinta'), tinta2: s('--tinta-2'), carimbo: s('--carimbo'), folha: s('--folha') },
+    tom: [null, s('--t1'), s('--t2'), s('--t3'), s('--t4'), s('--t5')],
   };
 }
 
@@ -153,7 +155,7 @@ export class CenaTrilha extends Phaser.Scene {
       const pts = curva(a, b).getPoints(40);
       const feito = a.estado === 'feita' && (b.estado !== 'trancada' || ateAnimado === i);
       if (feito && ateAnimado !== i) {
-        this.tinta.lineStyle(3, c.tinta, 1);
+        this.tinta.lineStyle(3, a.cor ? Phaser.Display.Color.HexStringToColor(a.cor).color : c.tinta, 1);
         this.tinta.strokePoints(pts);
       } else {
         this.fundo.lineStyle(1.5, c.fioForte, 1);
@@ -234,7 +236,7 @@ export class CenaLicao extends Phaser.Scene {
     this.game.events.on('mostrar', (ex) => this.mostrar(ex));
     this.game.events.on('acerto', () => this.acerto());
     this.game.events.on('erro', (certo) => this.erro(certo));
-    this.game.events.on('montagem', (hz) => this.preencher(hz));
+    this.game.events.on('montagem', (hz, tons) => this.preencher(hz, tons));
     this.game.events.on('par', (n) => this.par(n));
     this.game.events.on('som', () => this.ondas());
     this.game.events.on('tema', () => { this.c = cores(); if (this.ex) this.mostrar(this.ex); });
@@ -263,7 +265,7 @@ export class CenaLicao extends Phaser.Scene {
   }
 
   // Fileira de grades com caracteres (ou vazias). Retorna a caixa ocupada.
-  fileira(chars, cx, cy, ladoMax, vazias = false) {
+  fileira(chars, cx, cy, ladoMax, vazias = false, tons = null) {
     const n = chars.length;
     const gap = 6;
     const lado = Math.min(ladoMax, (this.L - 32 - gap * (n - 1)) / n);
@@ -271,11 +273,11 @@ export class CenaLicao extends Phaser.Scene {
     let x = cx - total / 2;
     const g = this.add.graphics();
     this.camada.add(g);
-    chars.forEach((ch) => {
+    chars.forEach((ch, i) => {
       grade(g, x, cy - lado / 2, lado, this.c.tinta, this.c.fioForte);
       const cel = { x: x + lado / 2, y: cy, lado, txt: null };
       if (!vazias) {
-        cel.txt = this.texto(cel.x, cy + lado * 0.02, ch, lado * 0.74, this.c.css.tinta);
+        cel.txt = this.texto(cel.x, cy + lado * 0.02, ch, lado * 0.74, this.corTom(tons?.[i]));
         this.camada.add(cel.txt);
       }
       this.celulas.push(cel);
@@ -285,16 +287,22 @@ export class CenaLicao extends Phaser.Scene {
     return this.alvo;
   }
 
-  // Ilustração: o Twemoji é reimpresso em duas tintas, preto e vermelho, sobre uma
-  // prancha de papel — como as figuras de um dicionário impresso em duas cores.
+  corTom(t) { return t ? this.c.tom[t] : this.c.css.tinta; }
+
+  // Pinta os caracteres já desenhados com a cor do tom (depois de responder).
+  colorir(tons) {
+    if (!tons) return;
+    this.celulas.forEach((cel, i) => { if (cel.txt && tons[i]) cel.txt.setColor(this.corTom(tons[i])); });
+  }
+
+  // Ilustração colorida (Twemoji) sobre uma prancha de papel com fio fino.
   imagem(codigo, x, y, lado) {
     if (!codigo) return;
     const bruta = 'tw0-' + codigo;
-    const chave = 'tw2-' + codigo;
+    const chave = bruta;
     const ex = this.ex;
     const por = () => {
       if (this.ex !== ex) return;
-      if (!this.textures.exists(chave)) this.duotonar(bruta, chave);
       const pr = this.add.graphics();
       const m = lado * 0.12;
       pr.fillStyle(PAPEL_PRANCHA, 1).fillRect(x - lado / 2 - m, y - lado / 2 - m, lado + 2 * m, lado + 2 * m);
@@ -309,46 +317,6 @@ export class CenaLicao extends Phaser.Scene {
     this.load.start();
   }
 
-  duotonar(bruta, chave) {
-    const src = this.textures.get(bruta).getSourceImage();
-    const cv = document.createElement('canvas');
-    cv.width = src.width;
-    cv.height = src.height;
-    const cx = cv.getContext('2d', { willReadFrequently: true });
-    cx.drawImage(src, 0, 0);
-    const img = cx.getImageData(0, 0, cv.width, cv.height);
-    const d = img.data;
-    const [ti, pa, ve] = [TINTA_IMPRESSA, PAPEL_PRANCHA, VERMELHO_IMPRESSO].map((c) => [(c >> 16) & 255, (c >> 8) & 255, c & 255]);
-    const ehVermelho = (i) => {
-      const r = d[i];
-      const g = d[i + 1];
-      const b = d[i + 2];
-      const max = Math.max(r, g, b);
-      const sat = max ? (max - Math.min(r, g, b)) / max : 0;
-      return r > 130 && r > g * 1.8 && r > b * 1.5 && sat > 0.45;
-    };
-    // O vermelho só entra como detalhe: figura com muito vermelho sai toda em tinta,
-    // para não competir com o carimbo do acerto.
-    let opacos = 0;
-    let vermelhos = 0;
-    for (let i = 0; i < d.length; i += 4) {
-      if (!d[i + 3]) continue;
-      opacos++;
-      if (ehVermelho(i)) vermelhos++;
-    }
-    const usaVermelho = vermelhos / Math.max(1, opacos) < 0.12;
-    for (let i = 0; i < d.length; i += 4) {
-      if (!d[i + 3]) continue;
-      if (usaVermelho && ehVermelho(i)) { d[i] = ve[0]; d[i + 1] = ve[1]; d[i + 2] = ve[2]; continue; }
-      // luz vira tom de tinta, meios-tons bem puxados para o escuro (traço de gravura);
-      // só o quase branco fica papel
-      const luz = (0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]) / 255;
-      const t = luz > 0.93 ? 1 : Math.pow(luz, 2.4) * 0.85;
-      for (let k = 0; k < 3; k++) d[i + k] = Math.round(ti[k] + (pa[k] - ti[k]) * t);
-    }
-    cx.putImageData(img, 0, 0);
-    this.textures.addCanvas(chave, cv);
-  }
 
   async mostrar(ex, animar = true) {
     this.ex = ex;
@@ -361,7 +329,12 @@ export class CenaLicao extends Phaser.Scene {
     const cy = A / 2;
     const ladoMax = Math.min(A - 24, 170);
     const p = ex.palavra;
-    const comImagem = (chars, img) => {
+    const tonsPal = p ? tonsPorCaractere(p.h, p.p) : null;
+    const tonsFrase = ex.frase ? ex.frase.t.flatMap(([h, py]) => tonsPorCaractere(h, py) || [...h].map(() => null)) : null;
+    // No exercício de tom e no de pinyin a cor entregaria a resposta: só aparece depois de responder.
+    this.tonsRevelar = (ex.tipo === 'tom' || ex.tipo === 'pinyin') ? tonsPal : null;
+    this.tonsMontar = ex.tipo === 'montar' ? tonsFrase : null;
+    const comImagem = (chars, img, tons) => {
       const n = [...chars].length;
       let lado = Math.min(ladoMax, (L * 0.62) / n);
       let imgLado = Math.min(lado * 0.9, 130);
@@ -373,18 +346,18 @@ export class CenaLicao extends Phaser.Scene {
       const total = larg + 28 + imgLado;
       const x0 = L / 2 - total / 2;
       this.imagem(img, x0 + imgLado / 2, cy, imgLado);
-      this.fileira([...chars], x0 + imgLado + 28 + larg / 2, cy, lado);
+      this.fileira([...chars], x0 + imgLado + 28 + larg / 2, cy, lado, false, tons);
     };
     switch (ex.tipo) {
       case 'novo':
-        comImagem(p.h, p.img);
+        comImagem(p.h, p.img, tonsPal);
         break;
       case 'pinyin':
-        comImagem(p.h, p.img);
+        comImagem(p.h, p.img, null);
         break;
       case 'escolha':
         if (ex.modo === 'ptHanzi') this.imagem(p.img, L / 2, cy, Math.min(A - 40, 150));
-        else this.fileira([...p.h], L / 2, cy, ladoMax);
+        else this.fileira([...p.h], L / 2, cy, ladoMax, false, tonsPal);
         break;
       case 'tom':
         this.tom(p);
@@ -394,7 +367,7 @@ export class CenaLicao extends Phaser.Scene {
         break;
       case 'traduzir': {
         const chars = [...ex.frase.t.map((t) => t[0]).join('')];
-        this.fileira(chars, L / 2, cy, 84);
+        this.fileira(chars, L / 2, cy, 84, false, tonsFrase);
         break;
       }
       case 'montar': {
@@ -495,14 +468,15 @@ export class CenaLicao extends Phaser.Scene {
     }
   }
 
-  preencher(hz) {
+  preencher(hz, tons = null) {
+    this.tonsMontagem = tons;
     const chars = [...hz];
     this.celulas.forEach((cel, k) => {
       const ch = chars[k];
       if (cel.txt && cel.txt.text === ch) return;
       if (cel.txt) { cel.txt.destroy(); cel.txt = null; }
       if (!ch) return;
-      cel.txt = this.texto(cel.x, cel.y + cel.lado * 0.02, ch, cel.lado * 0.74, this.c.css.tinta);
+      cel.txt = this.texto(cel.x, cel.y + cel.lado * 0.02, ch, cel.lado * 0.74, this.corTom(this.tonsMontagem?.[k]));
       this.camada.add(cel.txt);
       if (!reduzir()) { cel.txt.setScale(1.25).setAlpha(0); this.tweens.add({ targets: cel.txt, scale: 1, alpha: 1, duration: 200, ease: 'Quad.easeOut' }); }
     });
@@ -536,6 +510,7 @@ export class CenaLicao extends Phaser.Scene {
   }
 
   acerto() {
+    this.colorir(this.tonsRevelar);
     if (this.ex?.tipo === 'tom') this.contorno(this.ex.resposta);
     // O carimbo vai na maior margem livre, sem cobrir hanzi, imagem ou contorno do tom.
     const a = this.alvo || { x: this.L / 2 - 50, y: this.A / 2 - 50, w: 100, h: 100 };
@@ -557,6 +532,7 @@ export class CenaLicao extends Phaser.Scene {
   }
 
   erro() {
+    this.colorir(this.tonsRevelar);
     if (this.ex?.tipo === 'tom') this.contorno(this.ex.resposta);
     const a = this.alvo;
     if (!a) return;

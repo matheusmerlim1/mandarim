@@ -176,13 +176,15 @@ const ehUmaSilaba = (p) => [...p.h].length === 1 && !/\s/.test(p.p);
 
 export function gerarExercicios(licao, unidades, { semente, temVoz = true } = {}) {
   const rnd = criarSorteio(semente);
+  // temVoz: true/false, ou função (texto) => dá para ouvir esse texto (gravação ou voz do navegador)
+  const ouve = (texto) => (typeof temVoz === 'function' ? temVoz(texto) : !!temVoz);
   const u = unidades[licao.unidade];
   const todas = todasPalavras(unidades);
   const daUnidade = u.palavras.map((_, i) => palavra(u, i, licao.unidade));
   const ex = [];
   const tiposExtra = (p) => {
     const t = ['ptHanzi', 'pinyin', 'hanziPt'];
-    if (temVoz) t.push('ouvir', 'ouvir');
+    if (ouve(p.h)) t.push('ouvir', 'ouvir');
     if (ehUmaSilaba(p)) t.push('tom');
     return t;
   };
@@ -191,7 +193,7 @@ export function gerarExercicios(licao, unidades, { semente, temVoz = true } = {}
     const ps = licao.palavras.map((i) => daUnidade[i]);
     ps.forEach((p) => {
       ex.push({ tipo: 'novo', palavra: p });
-      ex.push(exercicioPalavra(temVoz ? 'ouvir' : 'hanziPt', p, daUnidade, todas, rnd));
+      ex.push(exercicioPalavra(ouve(p.h) ? 'ouvir' : 'hanziPt', p, daUnidade, todas, rnd));
     });
     if (ps.length >= 3) ex.push({ tipo: 'pares', palavras: rnd.embaralhar(ps).slice(0, 4) });
     rnd.embaralhar(ps).forEach((p) => ex.push(exercicioPalavra(rnd.um(tiposExtra(p)), p, daUnidade, todas, rnd)));
@@ -207,7 +209,8 @@ export function gerarExercicios(licao, unidades, { semente, temVoz = true } = {}
       ex.push({ tipo: 'traduzir', frase: f, opcoes: rnd.embaralhar([f, ...distratoresFrase(f, unidades, rnd)]) });
       ex.push(montar(f, todas, rnd, false));
     });
-    if (temVoz) ex.push(montar(rnd.um(u.frases), todas, rnd, true));
+    const audiveis = u.frases.filter((f) => ouve(textoFrase(f)));
+    if (audiveis.length) ex.push(montar(rnd.um(audiveis), todas, rnd, true));
   } else if (licao.tipo === 'revisao') {
     rnd.embaralhar(daUnidade).slice(0, 7).forEach((p) => ex.push(exercicioPalavra(rnd.um(tiposExtra(p)), p, daUnidade, todas, rnd)));
     ex.push({ tipo: 'pares', palavras: rnd.embaralhar(daUnidade).slice(0, 4) });
@@ -350,4 +353,35 @@ export function aplicarTom(silaba, n) {
   const v = s[pos].toLowerCase();
   const marcada = TABELA_TOM[v][n - 1];
   return s.slice(0, pos) + (s[pos] === v ? marcada : marcada.toUpperCase()) + s.slice(pos + 1);
+}
+
+// Separa pinyin em sílabas (com o texto original de cada uma): "xièxie" → ["xiè", "xie"].
+const VOG = 'aeiouüvāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ';
+const RE_SILABA = new RegExp(
+  `(?:zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?[${VOG}]+(?:ng(?![${VOG}])|n(?![${VOG}g])|r(?![${VOG}]))?`, 'giu');
+export function silabas(pinyin) {
+  return String(pinyin).normalize('NFC').match(RE_SILABA) || [];
+}
+export const tonsDe = (pinyin) => silabas(pinyin).map(tomDaSilaba);
+
+// Tom de cada caractere chinês do texto (pontuação e letras ficam null).
+// O 儿 do erhua (nǎr) não tem sílaba própria: herda o tom da anterior.
+// Retorna null se o pinyin não casar com os caracteres.
+export function tonsPorCaractere(hanzi, pinyin) {
+  const tons = tonsDe(pinyin);
+  const chars = [...hanzi];
+  const ehHz = (c) => /[\u3400-\u9fff]/.test(c);
+  const total = chars.filter(ehHz).length;
+  let erhua = total - tons.length;
+  if (erhua < 0) return null;
+  const out = [];
+  let k = 0;
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (!ehHz(c)) { out.push(null); continue; }
+    if (c === '儿' && erhua > 0 && k > 0) { out.push(tons[k - 1]); erhua--; continue; }
+    if (k >= tons.length) return null;
+    out.push(tons[k++]);
+  }
+  return erhua === 0 && k === tons.length ? out : null;
 }

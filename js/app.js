@@ -1,8 +1,8 @@
-import { UNIDADES, NIVEIS, GUIA } from './dados.js';
-import * as R from './regras.js';
-import { prepararVoz, temVoz, falar, falarPt } from './voz.js';
-import { traduzir, pinyinPorCaractere, pinyinFrase as pinyinTexto, temChines } from './tradutor.js';
-import { criarJogo, CenaTrilha, CenaLicao } from './cenas.js';
+import { UNIDADES, NIVEIS, GUIA } from './dados.js?v=2';
+import * as R from './regras.js?v=2';
+import { prepararVoz, podeOuvir, falar, falarPt } from './voz.js?v=2';
+import { traduzir, pinyinPorCaractere, pinyinFrase as pinyinTexto, temChines } from './tradutor.js?v=2';
+import { criarJogo, CenaTrilha, CenaLicao } from './cenas.js?v=2';
 
 const $ = (s, el = document) => el.querySelector(s);
 const CHAVE = 'mandarim.v1';
@@ -12,7 +12,28 @@ const TOM_NOME = { 1: '1º tom — alto e reto', 2: '2º tom — sobe', 3: '3º 
 const TOM_CURVA = { 1: 'M4 6 H50', 2: 'M4 18 L50 4', 3: 'M4 12 Q20 26 30 22 T50 6', 4: 'M4 4 L50 22', 5: 'M22 14 H32' };
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const hz = (s) => `<span lang="zh-CN">${esc(s)}</span>`;
+// Caracteres e pinyin pintados com a cor do tom (classes t1…t5).
+const hzc = (h, p) => {
+  const tons = p ? R.tonsPorCaractere(h, p) : null;
+  if (!tons) return esc(h);
+  return [...h].map((c, i) => (tons[i] ? `<span class="t${tons[i]}">${esc(c)}</span>` : esc(c))).join('');
+};
+const pyc = (p) => {
+  const s = String(p).normalize('NFC');
+  let out = '';
+  let pos = 0;
+  for (const sil of R.silabas(s)) {
+    const i = s.indexOf(sil, pos);
+    out += esc(s.slice(pos, i)) + `<span class="t${R.tomDaSilaba(sil)}">${esc(sil)}</span>`;
+    pos = i + sil.length;
+  }
+  return out + esc(s.slice(pos));
+};
+const hz = (s, p) => `<span lang="zh-CN">${hzc(s, p)}</span>`;
+const hzFrase = (f) => `<span lang="zh-CN">${f.t.map(([h, py]) => hzc(h, py)).join('')}${esc(f.fim || '')}</span>`;
+// Cor de cada unidade (abas e verbetes), como os cortes coloridos de um dicionário.
+const CORES_UNIDADE = ['#a3262a', '#b0531a', '#86680f', '#2f7a45', '#14707a', '#1f5c9e', '#5a3f9e', '#8e2f73'];
+const corUnidade = (ui) => CORES_UNIDADE[ui % CORES_UNIDADE.length];
 const imgUrl = (c) => `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/${c}.svg`;
 
 // ---------- progresso salvo ----------
@@ -63,11 +84,11 @@ function desenharTrilha() {
   UNIDADES.forEach((u, ui) => {
     const nivel = NIVEIS.find((n) => n.id === u.nivel);
     if (nivel.id !== nivelAntes) nivelAntes = nivel.id;
-    html += `<section class="unidade" id="u-${u.id}" aria-labelledby="h-${u.id}">
+    html += `<section class="unidade" id="u-${u.id}" aria-labelledby="h-${u.id}" style="--u:${corUnidade(ui)}">
       <header class="verbete">
         <span class="verbete-hz" lang="zh-CN">${esc(u.hanzi)}</span>
         <h2 id="h-${u.id}">${esc(u.titulo)}</h2>
-        <p class="verbete-py"><span lang="zh-Latn-pinyin">${esc(u.pinyin)}</span><b>${nivel.hsk}</b></p>
+        <p class="verbete-py"><span lang="zh-Latn-pinyin">${pyc(u.pinyin)}</span><b>${nivel.hsk}</b></p>
         <p class="verbete-dica">${esc(u.dica)}</p>
       </header><ol class="licoes">`;
     trilha.forEach((l, i) => {
@@ -94,7 +115,7 @@ function desenharTrilha() {
   caixa.innerHTML = html;
 
   $('#dedeiras').innerHTML = UNIDADES.map((u, ui) =>
-    `<a href="#u-${u.id}" data-u="${u.id}"><span lang="zh-CN">${NUM_HZ[ui]}</span><span class="sr"> — unidade ${ui + 1}: ${esc(u.titulo)}</span></a>`).join('');
+    `<a href="#u-${u.id}" data-u="${u.id}" style="--u:${corUnidade(ui)}"><span lang="zh-CN">${NUM_HZ[ui]}</span><span class="sr"> — unidade ${ui + 1}: ${esc(u.titulo)}</span></a>`).join('');
 
   const atual = R.indiceAtual(trilha, prog);
   const b = $('#b-continuar');
@@ -118,7 +139,7 @@ function enviarNos() {
     const i = Number(b.dataset.i);
     return {
       x: r.left + r.width / 2 + window.scrollX, y: r.top + r.height / 2 + window.scrollY, lado: r.width,
-      estado: R.estadoLicao(trilha, prog, i), unidade: trilha[i].unidade, perfeita: !!prog.feitas[trilha[i].id]?.perfeita,
+      estado: R.estadoLicao(trilha, prog, i), unidade: trilha[i].unidade, cor: corUnidade(trilha[i].unidade), perfeita: !!prog.feitas[trilha[i].id]?.perfeita,
     };
   });
   jogoTrilha.events.emit('nos', nos);
@@ -176,7 +197,7 @@ function iniciarLicao(i) {
     avisoTrilha(`Suas vidas acabaram. Pratique de novo uma lição já concluída para ganhar uma vida, ou espere ${min} min.`);
     return;
   }
-  const fila = R.gerarExercicios(licao, UNIDADES, { semente: Date.now(), temVoz: temVoz() });
+  const fila = R.gerarExercicios(licao, UNIDADES, { semente: Date.now(), temVoz: podeOuvir });
   L = { i, licao, treino, fila, pos: 0, erros: 0, total: fila.filter((e) => e.tipo !== 'novo').length, resposta: null, conferido: false, refeitos: new Set() };
   mostrarVista('licao');
   window.scrollTo(0, 0);
@@ -196,7 +217,7 @@ function avisoTrilha(texto) {
 }
 
 function botaoSom(texto, rotulo = 'Ouvir', grande = false) {
-  if (!temVoz()) return '';
+  if (!podeOuvir(texto)) return '';
   return `<button type="button" class="botao-som${grande ? ' grande' : ''}" data-falar="${esc(texto)}"><svg aria-hidden="true"><use href="#i-som"/></svg>${rotulo}</button>
     <button type="button" class="botao-som" data-falar="${esc(texto)}" data-devagar="1"><svg aria-hidden="true"><use href="#i-tartaruga"/></svg>Devagar</button>`;
 }
@@ -228,10 +249,10 @@ function mostrarExercicio() {
 
   switch (ex.tipo) {
     case 'novo':
-      titulo = `Palavra nova: ${hz(p.h)}`;
+      titulo = `Palavra nova: ${hz(p.h, p.p)}`;
       rotuloPalco = `Ilustração de “${p.pt}” e o caractere ${p.h} na grade de caligrafia`;
       html = `<div class="cartao-novo">
-        <span class="py" lang="zh-Latn-pinyin">${esc(p.p)}</span>
+        <span class="py" lang="zh-Latn-pinyin">${pyc(p.p)}</span>
         <span class="pt">${esc(p.pt)}</span>
         ${[...p.h].length === 1 && p.p.indexOf(' ') < 0 ? `<span class="tons">${TOM_NOME[R.tomDaSilaba(p.p)]}</span>` : ''}
       </div><div class="linha-som">${botaoSom(p.h)}</div>`;
@@ -245,23 +266,24 @@ function mostrarExercicio() {
         titulo = `O que significa <span class="sr">${hz(p.h)}</span><span aria-hidden="true">isto</span>?`;
         rotuloPalco = `O caractere ${p.h} na grade de caligrafia`;
         html = `<div class="linha-som">${botaoSom(p.h)}</div>` + opcoesHtml(ex.opcoes.map((o) => `<span>${esc(o.pt)}</span>`));
+        falarAoAbrir = p.h;
       } else {
         titulo = `Como se escreve <span class="pt-alvo">“${esc(p.pt)}”</span>?`;
         rotuloPalco = `Ilustração de “${p.pt}”`;
         const py = mostraPinyinNasOpcoes();
-        html = opcoesHtml(ex.opcoes.map((o) => `<span><span class="hz" lang="zh-CN">${esc(o.h)}</span>${py ? `<span class="py-mini">${esc(o.p)}</span>` : ''}</span>`), ex.opcoes.map((o) => o.h));
+        html = opcoesHtml(ex.opcoes.map((o) => `<span><span class="hz" lang="zh-CN">${hzc(o.h, o.p)}</span>${py ? `<span class="py-mini">${pyc(o.p)}</span>` : ''}</span>`), ex.opcoes.map((o) => o.h));
       }
       break;
     case 'ouvir':
       titulo = 'Ouça e escolha o que foi dito';
       rotuloPalco = 'Alto-falante';
-      html = `<div class="linha-som">${botaoSom(p.h, 'Ouvir de novo', true)}</div>` + opcoesHtml(ex.opcoes.map((o) => `<span class="hz" lang="zh-CN">${esc(o.h)}</span>`));
+      html = `<div class="linha-som">${botaoSom(p.h, 'Ouvir de novo', true)}</div>` + opcoesHtml(ex.opcoes.map((o) => `<span class="hz" lang="zh-CN">${hzc(o.h, o.p)}</span>`), ex.opcoes.map((o) => o.h));
       falarAoAbrir = p.h;
       break;
     case 'pinyin':
       titulo = `Escreva o pinyin de ${hz(p.h)} <span class="pt-alvo">(${esc(p.pt)})</span>`;
       rotuloPalco = `Ilustração de “${p.pt}” e o caractere ${p.h}`;
-      html = `<label class="sr" for="campo-py">Pinyin</label>
+      html = `<div class="linha-som">${botaoSom(p.h)}</div><label class="sr" for="campo-py">Pinyin</label>
         <input id="campo-py" class="campo-pinyin" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" lang="zh-Latn-pinyin" aria-describedby="dica-py">
         <p id="dica-py" class="dica-campo">Tons com acento (nǐ hǎo) ou com número (ni3 hao3). Sem tom também vale, com aviso.</p>
         <div class="teclas-tom" aria-label="Inserir vogal com tom">${['ā', 'á', 'ǎ', 'à', 'ē', 'é', 'ě', 'è', 'ī', 'í', 'ǐ', 'ì', 'ō', 'ó', 'ǒ', 'ò', 'ū', 'ú', 'ǔ', 'ù', 'ǚ', 'ǜ'].map((v) => `<button type="button" data-inserir="${v}" aria-label="Inserir ${v}">${v}</button>`).join('')}</div>`;
@@ -285,7 +307,7 @@ function mostrarExercicio() {
       const esq = R.criarSorteio(Date.now()).embaralhar(ex.palavras);
       const dir = R.criarSorteio(Date.now() + 1).embaralhar(ex.palavras);
       html = `<div class="pares"><div class="coluna" role="group" aria-label="Caracteres">${esq.map((w) =>
-        `<button type="button" class="opcao" data-par="${esc(w.h)}" data-lado="hz" aria-pressed="false"><span class="hz" lang="zh-CN">${esc(w.h)}</span></button>`).join('')}</div>
+        `<button type="button" class="opcao" data-par="${esc(w.h)}" data-lado="hz" aria-pressed="false"><span class="hz" lang="zh-CN">${hzc(w.h, w.p)}</span></button>`).join('')}</div>
         <div class="coluna" role="group" aria-label="Significados">${dir.map((w) =>
         `<button type="button" class="opcao" data-par="${esc(w.h)}" data-lado="pt" aria-pressed="false">${esc(w.pt)}</button>`).join('')}</div></div>`;
       L.pares = { sel: null, feitos: 0 };
@@ -299,7 +321,7 @@ function mostrarExercicio() {
         `<div class="montagem" id="montagem" aria-label="Sua resposta" role="group"></div>
         <p class="dica-montar">Toque nas peças na ordem certa. Toque de novo numa peça escolhida para tirá-la.</p>
         <div class="banco" role="group" aria-label="Peças">${ex.pecas.map((pc) =>
-        `<button type="button" class="peca" data-k="${pc.k}"><span class="hz" lang="zh-CN">${esc(pc.h)}</span><span class="py-mini">${esc(pc.p)}</span></button>`).join('')}</div>`;
+        `<button type="button" class="peca" data-k="${pc.k}"><span class="hz" lang="zh-CN">${hzc(pc.h, pc.p)}</span><span class="py-mini">${pyc(pc.p)}</span></button>`).join('')}</div>`;
       L.montagem = [];
       if (ex.ouvindo) falarAoAbrir = R.textoFrase(f);
       break;
@@ -354,12 +376,12 @@ function respostaCertaHtml(ex) {
     case 'escolha':
     case 'ouvir':
     case 'pinyin':
-      return `${hz(p.h)} · <span lang="zh-Latn-pinyin">${esc(p.p)}</span> · ${esc(p.pt)}`;
+      return `${hz(p.h, p.p)} · <span lang="zh-Latn-pinyin">${pyc(p.p)}</span> · ${esc(p.pt)}`;
     case 'tom':
-      return `<span lang="zh-Latn-pinyin">${esc(p.p)}</span> — ${TOM_NOME[ex.resposta]}${p.pt ? ` · ${esc(p.pt)}` : ''}`;
+      return `${hz(p.h, p.p)} · <span lang="zh-Latn-pinyin">${pyc(p.p)}</span> — ${TOM_NOME[ex.resposta]}${p.pt ? ` · ${esc(p.pt)}` : ''}`;
     case 'montar':
     case 'traduzir':
-      return `${hz(R.textoFrase(ex.frase))} · <span lang="zh-Latn-pinyin">${esc(R.pinyinFrase(ex.frase))}</span> · ${esc(ex.frase.pt)}`;
+      return `${hzFrase(ex.frase)} · <span lang="zh-Latn-pinyin">${pyc(R.pinyinFrase(ex.frase))}</span> · ${esc(ex.frase.pt)}`;
     default:
       return '';
   }
@@ -480,13 +502,15 @@ function cliqueMontar(btn) {
     L.montagem.push(k);
     btn.disabled = true;
     const pc = ex.pecas.find((p) => p.k === k);
-    $('#montagem').insertAdjacentHTML('beforeend', `<button type="button" class="peca" data-k="${k}" aria-label="Tirar ${esc(pc.h)}"><span class="hz" lang="zh-CN">${esc(pc.h)}</span><span class="py-mini">${esc(pc.p)}</span></button>`);
+    $('#montagem').insertAdjacentHTML('beforeend', `<button type="button" class="peca" data-k="${k}" aria-label="Tirar ${esc(pc.h)}"><span class="hz" lang="zh-CN">${hzc(pc.h, pc.p)}</span><span class="py-mini">${pyc(pc.p)}</span></button>`);
     falar(pc.h);
     const prox = $('.banco .peca:not(:disabled)');
     (prox || $('#b-verificar')).focus();
   }
   $('#b-verificar').disabled = L.montagem.length === 0;
-  jogoLicao?.events.emit('montagem', L.montagem.map((x) => ex.pecas.find((p) => p.k === x).h).join(''));
+  const escolhidas = L.montagem.map((x) => ex.pecas.find((p) => p.k === x));
+  jogoLicao?.events.emit('montagem', escolhidas.map((p) => p.h).join(''),
+    escolhidas.flatMap((p) => R.tonsPorCaractere(p.h, p.p) || [...p.h].map(() => null)));
 }
 
 function cliquePar(btn) {
@@ -530,11 +554,11 @@ function desenharFrases() {
   const cats = ['Todas', ...new Set(GUIA.map((g) => g[0]))];
   $('#filtros').innerHTML = cats.map((c) => `<button type="button" data-cat="${esc(c)}" aria-pressed="${c === filtro}">${esc(c)}</button>`).join('');
   $('#lista-frases').innerHTML = GUIA.filter((g) => filtro === 'Todas' || g[0] === filtro).map(([cat, h, p, pt]) => `<li>
-    <span class="hz" lang="zh-CN">${esc(h)}</span>
-    <span class="py" lang="zh-Latn-pinyin">${esc(p)}</span>
+    <span class="hz" lang="zh-CN">${hzc(h, p)}</span>
+    <span class="py" lang="zh-Latn-pinyin">${pyc(p)}</span>
     <span class="pt">${esc(pt)}</span>
     <span class="cat">${esc(cat)}</span>
-    ${temVoz() ? `<span class="sons"><button type="button" class="botao-icone" data-falar="${esc(h)}" aria-label="Ouvir: ${esc(pt)}"><svg aria-hidden="true"><use href="#i-som"/></svg></button>
+    ${podeOuvir(h) ? `<span class="sons"><button type="button" class="botao-icone" data-falar="${esc(h)}" aria-label="Ouvir: ${esc(pt)}"><svg aria-hidden="true"><use href="#i-som"/></svg></button>
     <button type="button" class="botao-icone" data-falar="${esc(h)}" data-devagar="1" aria-label="Ouvir devagar: ${esc(pt)}"><svg aria-hidden="true"><use href="#i-tartaruga"/></svg></button></span>` : ''}
   </li>`).join('');
 }
@@ -555,7 +579,7 @@ function limparPinyin(s) {
 
 function rubyHtml(texto) {
   return `<ul class="ruby-linha" aria-hidden="true">${pinyinPorCaractere(texto).filter((x) => x.hz.trim()).map((x) =>
-    `<li><span class="py-mini">${esc(x.py || ' ')}</span><span class="hz">${esc(x.hz)}</span></li>`).join('')}</ul>`;
+    `<li${x.py ? ` class="t${R.tomDaSilaba(x.py)}"` : ''}><span class="py-mini">${esc(x.py || ' ')}</span><span class="hz">${esc(x.hz)}</span></li>`).join('')}</ul>`;
 }
 
 async function enviarTraducao(e) {
@@ -577,7 +601,7 @@ async function enviarTraducao(e) {
       ${direcao === 'pt'
         ? `<p class="hz-grande" lang="zh-CN">${esc(zh)}</p>`
         : `<p class="pt-grande">${esc(pt)}</p><p class="hz-grande" lang="zh-CN">${esc(zh)}</p>`}
-      <p class="py-linha" lang="zh-Latn-pinyin">${esc(limparPinyin(pinyinTexto(zh)))}</p>
+      <p class="py-linha" lang="zh-Latn-pinyin">${pyc(limparPinyin(pinyinTexto(zh)))}</p>
       ${rubyHtml(zh)}
       <div class="trad-botoes">${botaoSom(zh, 'Ouvir em chinês')}
         ${direcao === 'zh' ? '<button type="button" class="botao-som" data-falar-pt="1"><svg aria-hidden="true"><use href="#i-som"/></svg>Ouvir em português</button>' : ''}
@@ -674,12 +698,9 @@ if (!location.hash && Object.keys(prog.feitas).length) {
   document.fonts?.ready.then(() => { if (window.scrollY < 200) irAoAtual(); setTimeout(enviarNos, 50); });
 }
 document.fonts?.ready.then(() => { if (!$('#vista-trilha').hidden) enviarNos(); });
-prepararVoz().then((ok) => {
-  if (!ok) {
-    avisoTrilha('Seu navegador não tem voz em chinês, então as lições vêm sem som e sem os exercícios de ouvir. No Windows: Configurações → Hora e idioma → Fala → adicionar “Chinês (simplificado)”. No celular, o Chrome do Android já traz a voz.');
-  }
-  desenharFrases();
-});
+// Palavras e frases do curso tocam pelos arquivos de áudio; a voz do navegador só é
+// necessária no tradutor (texto livre).
+prepararVoz().then(() => desenharFrases());
 
 // Gancho para os testes de navegador (só leitura).
 window.mandarim = { licao: () => L, progresso: () => prog };

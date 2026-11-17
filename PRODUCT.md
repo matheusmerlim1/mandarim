@@ -30,11 +30,13 @@ brasileiro), com os quatro tons tratados como conteúdo próprio, e de graça, s
 
 ## Capabilities and Constraints
 
-- Som: voz chinesa do próprio navegador (Web Speech API, zh-CN). Alguns sistemas não têm voz chinesa:
-  avisar e seguir com pinyin.
+- Som: todo texto do curso tem MP3 próprio (voz neural zh-CN-XiaoxiaoNeural, gerada com edge-tts por escolha
+  do dono em 17/11/2026), para tocar em qualquer aparelho; a voz do navegador fica só para o tradutor.
+  Cada palavra toca nas palavras novas e nas atividades (a entonação importa).
 - Tradução: API gratuita sem chave (MyMemory). Limite diário por IP; falha precisa de mensagem clara.
 - Pinyin do texto traduzido: biblioteca pinyin-pro via CDN.
-- Imagens: Twemoji (CC-BY 4.0, via jsDelivr), reimpressos no navegador em duas tintas (preto e vermelho) sobre uma prancha de papel, para caberem no mundo do dicionário impresso. Crédito no rodapé.
+- Imagens: Twemoji coloridos (CC-BY 4.0, via jsDelivr) sobre uma prancha de papel. Crédito no rodapé.
+- Cores (pedido do dono em 17/11/2026): pinyin e caracteres na cor do tom; cada unidade com sua cor.
 - Conteúdo das lições é estático no repositório; nada de dados pessoais.
 
 ## Brand Commitments

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Serif+SC:wght@400;700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="css/style.css?v=1">
+<link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -55,6 +55,12 @@
       <div class="folha-cab">
         <h1 id="t-trilha">Aprenda mandarim, um verbete por dia</h1>
         <p class="folha-sub">Do zero ao HSK 3. Ouça, leia o pinyin, monte frases. Cada lição leva de 3 a 5 minutos.</p>
+        <p class="legenda-tons">Cada tom tem uma cor:
+          <span class="t1"><b lang="zh-Latn-pinyin">mā</b> 1º alto</span>
+          <span class="t2"><b lang="zh-Latn-pinyin">má</b> 2º sobe</span>
+          <span class="t3"><b lang="zh-Latn-pinyin">mǎ</b> 3º desce e sobe</span>
+          <span class="t4"><b lang="zh-Latn-pinyin">mà</b> 4º cai</span>
+          <span class="t5"><b lang="zh-Latn-pinyin">ma</b> neutro</span></p>
         <p id="aviso-voz" class="aviso" hidden></p>
         <p class="continuar-linha"><button id="b-continuar" class="botao botao-capa" type="button">Começar</button> <span id="continuar-rotulo"></span></p>
       </div>
@@ -133,12 +139,12 @@
 </main>
 
 <footer class="rodape">
-  <p>Ilustrações: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji (abre em nova aba)</a>, licença CC-BY 4.0, reimpressas em duas tintas. Som: a voz chinesa do seu navegador. Seu progresso fica salvo só neste aparelho.</p>
+  <p>Ilustrações: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji (abre em nova aba)</a>, licença CC-BY 4.0. Som: voz neural chinesa da Microsoft gerada com o <a href="https://github.com/matheusmerlim1/mandarim/blob/main/audio/CREDITOS.md" target="_blank" rel="noopener">edge-tts (detalhes, abre em nova aba)</a>. Seu progresso fica salvo só neste aparelho.</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/phaser@4.2.1/dist/phaser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.29.5/dist/index.js"></script>
-<script type="module" src="js/app.js?v=1"></script>
+<script type="module" src="js/app.js?v=2"></script>
 
 <!-- === Botao de volta ao portfolio - cole antes de </body> === -->
 <nav aria-label="Portf&oacute;lio">

@@ -22,8 +22,12 @@ com cara de dicionário Xinhua de bolso: cada lição é um verbete, cada unidad
 
 - HTML/CSS/JS sem build. **Phaser 4.2.1** desenha o fio da trilha, a grade de caligrafia, o carimbo
   对 do acerto e o risco de lápis do erro; os controles são HTML (teclado e leitor de tela).
-- Som: voz chinesa do próprio navegador (Web Speech API). Sem voz chinesa instalada, a página avisa e
-  tira os exercícios de ouvir. No Windows: Configurações → Hora e idioma → Fala → Chinês (simplificado).
+- Som: cada palavra e frase do curso tem um MP3 em `audio/` (230 arquivos, voz neural
+  `zh-CN-XiaoxiaoNeural` gerada com o [edge-tts](https://github.com/rany2/edge-tts); detalhes em
+  `audio/CREDITOS.md`), então toca em qualquer aparelho. O tradutor (texto livre) usa a voz chinesa
+  do navegador. Índice dos arquivos: `js/audios.js` (chave = texto sem pontuação).
+- Cores: cada sílaba do pinyin e cada caractere na cor do seu tom (1º vermelho, 2º verde, 3º azul,
+  4º roxo, neutro cinza); cada unidade com a sua cor nas abas e nos verbetes.
 - Tradução: API gratuita do [MyMemory](https://mymemory.translated.net/) (limite diário por conexão).
   Pinyin: [pinyin-pro](https://github.com/zh-lib/pinyin-pro).
 - Imagens: [Twemoji](https://github.com/jdecked/twemoji), CC-BY 4.0.

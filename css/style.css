@@ -26,6 +26,13 @@
   --f-py: "Source Serif 4", "Georgia", serif;
   --f-ui: "Noto Sans", "Segoe UI", system-ui, sans-serif;
 
+  /* cores dos tons (1º vermelho, 2º verde, 3º azul, 4º roxo, neutro cinza) */
+  --t1: #b8231a;
+  --t2: #22692a;
+  --t3: #1b58a8;
+  --t4: #7a2ea3;
+  --t5: #5f5b53;
+
   --capa-alt: 64px;
   color-scheme: light;
 }
@@ -51,6 +58,7 @@
     --lapis: #93b3dc;
     --lapis-fundo: #1b2433;
     --sombra: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 22px rgba(0, 0, 0, .35);
+    --t1: #ff8a7e; --t2: #7fd68a; --t3: #8bb8ff; --t4: #d6a6f7; --t5: #b3aea3;
     color-scheme: dark;
   }
 }
@@ -59,8 +67,10 @@
   --papel: #141312; --papel-2: #201e1c; --folha: #1a1917; --tinta: #ecebe5; --tinta-2: #aba69b;
   --fio: #3b3834; --fio-forte: #8a857b; --carimbo: #ff6f5e; --carimbo-fundo: #3a1714; --carimbo-texto: #ff9a8c; --sobre-carimbo: #2a0706;
   --lapis: #93b3dc; --lapis-fundo: #1b2433; --sombra: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 22px rgba(0, 0, 0, .35);
+  --t1: #ff8a7e; --t2: #7fd68a; --t3: #8bb8ff; --t4: #d6a6f7; --t5: #b3aea3;
   color-scheme: dark;
 }
+.t1 { color: var(--t1); } .t2 { color: var(--t2); } .t3 { color: var(--t3); } .t4 { color: var(--t4); } .t5 { color: var(--t5); }
 
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
@@ -147,6 +157,9 @@ h1 {
 }
 .folha-sub { color: var(--tinta-2); margin: 0 0 1.2rem; max-width: 60ch; }
 .folha-cab { padding-bottom: 1.1rem; border-bottom: 1px solid var(--tinta); box-shadow: 0 3px 0 -2px var(--tinta); margin-bottom: 1.8rem; }
+.legenda-tons { display: flex; flex-wrap: wrap; gap: .3rem .9rem; align-items: baseline; margin: 0 0 1rem; font-size: .92rem; color: var(--tinta-2); }
+.legenda-tons span { white-space: nowrap; font-weight: 600; }
+.legenda-tons b { font: italic 600 1.1rem/1 var(--f-py); margin-right: .2rem; }
 .continuar-linha { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: 0; color: var(--tinta-2); }
 .aviso {
   border: 1px solid var(--fio-forte); background: var(--folha); padding: .7rem .9rem; margin: 0 0 1rem;
@@ -185,7 +198,9 @@ h1 {
   display: grid; grid-template-columns: auto 1fr; gap: .2rem 1.1rem; align-items: baseline;
   padding-bottom: 1rem; border-bottom: 1px solid var(--fio); margin-bottom: 1.6rem;
 }
-.verbete-hz { grid-row: span 2; font: 900 clamp(2.4rem, 2rem + 2vw, 3.4rem)/1 var(--f-hz); color: var(--tinta); }
+.verbete-hz { grid-row: span 2; font: 900 clamp(2.4rem, 2rem + 2vw, 3.4rem)/1 var(--f-hz); color: var(--u, var(--tinta)); }
+.verbete { border-bottom-color: color-mix(in srgb, var(--u, var(--fio)) 45%, var(--fio)); }
+.verbete h2::after { content: ""; display: block; width: 2.2em; height: 3px; margin-top: .3rem; background: var(--u, var(--tinta)); }
 .verbete h2 { margin: 0; font: 700 1.45rem/1.2 var(--f-py); }
 .verbete-py { margin: 0; color: var(--tinta-2); font: italic 400 1.05rem/1.3 var(--f-py); }
 .verbete-py b { font: 600 .78rem/1 var(--f-ui); font-style: normal; letter-spacing: .08em; border: 1px solid var(--fio-forte); padding: .15rem .35rem; margin-left: .5rem; vertical-align: .1em; }
@@ -204,7 +219,7 @@ h1 {
 }
 .no:hover:not(:disabled) { transform: translateY(-2px); }
 .no:focus-visible { outline: 3px solid var(--tinta); outline-offset: 5px; }
-.no-feita { background: var(--tinta); color: var(--folha); }
+.no-feita { background: var(--u, var(--tinta)); color: #fff; }
 .no-atual { background: var(--carimbo); color: var(--sobre-carimbo); box-shadow: 0 3px 8px -1px color-mix(in srgb, var(--carimbo) 55%, transparent); }
 .no-trancada { color: var(--tinta-2); cursor: not-allowed; background: var(--papel); box-shadow: inset 0 0 0 1px var(--fio-forte); }
 .no-trancada .cadeado { position: absolute; right: -6px; bottom: -6px; width: 22px; height: 22px; padding: 3px; border-radius: 50%; background: var(--papel); fill: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--fio-forte); }
@@ -225,12 +240,12 @@ h1 {
 }
 .dedeiras a {
   display: grid; place-items: center; width: 40px; height: 34px; text-decoration: none;
-  background: var(--capa); color: var(--ouro); border-radius: 6px 0 0 6px;
+  background: var(--u, var(--capa)); color: #fff; border-radius: 6px 0 0 6px;
   font: 700 .95rem/1 var(--f-hz); box-shadow: inset 3px 0 0 var(--capa-2);
   transition: width .2s ease-out, background-color .15s;
 }
-.dedeiras a:hover { background: var(--capa-brilho); }
-.dedeiras a[aria-current="true"] { width: 52px; background: var(--capa-brilho); }
+.dedeiras a:hover { filter: brightness(1.12); }
+.dedeiras a[aria-current="true"] { width: 52px; box-shadow: inset 4px 0 0 rgba(0, 0, 0, .25), 0 2px 6px rgba(0, 0, 0, .25); }
 .dedeiras a:focus-visible { outline: 2px solid var(--tinta); outline-offset: 2px; }
 .dedeiras .nivel-sep { height: 10px; }
 
@@ -402,7 +417,7 @@ body.em-licao .capa, body.em-licao .rodape, body.em-licao #mr-portfolio-btn { di
 .trad-resultado .py-linha { font: italic 400 1.15rem/1.5 var(--f-py); color: var(--tinta-2); margin: .2rem 0 .8rem; }
 .ruby-linha { display: flex; flex-wrap: wrap; gap: .1rem .15rem; margin: 0 0 1rem; padding: 0; list-style: none; }
 .ruby-linha li { display: grid; justify-items: center; min-width: 2.2em; padding: .3rem .2rem; border: 1px dashed var(--fio); }
-.ruby-linha .py-mini { font: italic 400 .85rem/1.2 var(--f-py); color: var(--tinta-2); }
+.ruby-linha .py-mini { font: italic 400 .85rem/1.2 var(--f-py); color: inherit; }
 .ruby-linha .hz { font: 400 1.5rem/1.2 var(--f-hz); }
 .trad-botoes { display: flex; flex-wrap: wrap; gap: .5rem; }
 .erro-msg { border: 1px solid var(--lapis); background: var(--lapis-fundo); padding: .8rem 1rem; color: var(--tinta); }
@@ -440,3 +455,9 @@ body.em-licao .capa, body.em-licao .rodape, body.em-licao #mr-portfolio-btn { di
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* tema escuro: a cor da unidade clareada para o hanzi grande ler bem sobre o papel escuro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .verbete-hz { color: color-mix(in srgb, var(--u, #fff) 45%, #fff); }
+}
+:root[data-theme="dark"] .verbete-hz { color: color-mix(in srgb, var(--u, #fff) 45%, #fff); }

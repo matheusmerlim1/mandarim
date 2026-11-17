@@ -160,12 +160,21 @@ Paleta de livro impresso: um vermelho de capa, um vermelho de carimbo, ouro de f
 - **Tinta Suave** (#55514a): texto secundário, pinyin, legendas.
 - **Fio** (#c4bfb3) e **Fio Forte** (#7f7a70): réguas de 1px, bordas de controles e estados desabilitados.
 - **Tema escuro** (bloco `prefers-color-scheme` e `[data-theme="dark"]`): capa #5c0f11, papel #141312, folha #1a1917, tinta #ecebe5, carimbo #ff6f5e, lápis #93b3dc. Mesmos papéis, valores recalibrados.
-- **Cores de impressão do Phaser** (fixas, para as pranchas): tinta #1c1b19, papel de prancha #f7f6f1, vermelho impresso #b8231a.
+- **Papel de prancha** (fixo no Phaser): #f7f6f1, fundo das ilustrações nos dois temas.
+
+### Cores dos tons (pedido do dono, 17/11/2026)
+Cada sílaba do pinyin e cada caractere são pintados com a cor do seu tom, em todo o app (classes `t1`…`t5`, tokens `--t1`…`--t5`):
+- **1º tom** #b8231a (escuro: #ff8a7e) · **2º** #22692a (#7fd68a) · **3º** #1b58a8 (#8bb8ff) · **4º** #7a2ea3 (#d6a6f7) · **neutro** #5f5b53 (#b3aea3).
+- No exercício de tom e no de escrever pinyin o caractere fica em tinta até a resposta, para a cor não entregar o tom; depois ganha a cor.
+- A legenda das cores fica no topo da trilha.
+
+### Cor de cada unidade
+Ciclo de 8 cores de encadernação (#a3262a, #b0531a, #86680f, #2f7a45, #14707a, #1f5c9e, #5a3f9e, #8e2f73), passado como `--u` na seção da unidade e na aba de dedo: aba de dedo, hanzi grande do verbete (clareado no tema escuro), filete sob o título, nós concluídos e fio já percorrido da trilha.
 
 ### Named Rules
 **The Two Reds Rule.** O vermelho de capa é estrutura, o vermelho-carimbo é estado. Um nunca faz o trabalho do outro: botão de chamada em carimbo ou nó ativo em vinil são erros.
 
-**The Ink Carries It Rule.** Concluído, perfeito (优), lição, ícone: tudo em tinta. O vermelho-carimbo só entra onde há ação ou resposta viva agora.
+**The Color Teaches Rule.** Cor no miolo tem função: o tom (no pinyin e no caractere) e a unidade (aba, verbete, nós feitos). O vermelho-carimbo continua sendo o estado vivo (etapa atual, acerto); o 优 e os ícones ficam em tinta.
 
 **The Pencil Is Not Red Rule.** Erro nunca usa vermelho. É lápis azul-grafite, com contorno, fundo e texto riscado, para que acerto e erro se distingam sem depender de matiz.
 
@@ -213,13 +222,13 @@ Cantos quase retos, como quinas de livro: 3px (numeração), 4px (botões, opç�
 - **Ícone:** círculo de 44px, cinza de tinta suave que escurece no hover.
 
 ### Trilha (nós)
-- **Concluído:** quadrado de 76px (64px no celular) preenchido de tinta, hanzi em folha.
+- **Concluído:** quadrado de 76px (64px no celular) na cor da unidade, hanzi branco; o fio percorrido também na cor da unidade.
 - **Atual:** vermelho-carimbo cheio com a grade 田字格; único elemento da trilha em cor viva; rótulo "Começar" em texto de carimbo.
 - **Trancado:** papel com fio e cadeado pequeno; sem hover.
 - Rótulo de cada nó ao lado, alternando de lado conforme o zigue-zague.
 
 ### Abas de dedo
-- Fixas à direita, 40x34px, capa vermelha com ouro e sombra interna de 3px; a unidade atual alarga para 52px. Cantos arredondados só no lado de fora.
+- Fixas à direita, 40x34px, na cor de cada unidade com numeral chinês branco; a unidade à vista alarga para 52px e ganha sombra. Cantos arredondados só no lado de fora.
 
 ### Opções de resposta
 - Folha branca, fio forte de 1px, 4px de canto, mínimo de 60px, numeração em caixinha. Selecionada: contorno interno de tinta de 2px. Certa: contorno de carimbo e fundo de carimbo. Errada: contorno de lápis, fundo de lápis e texto riscado. Opções de tom mostram a curva do tom como traço.
@@ -240,7 +249,7 @@ Cantos quase retos, como quinas de livro: 3px (numeração), 4px (botões, opç�
 - Acerto: selo vermelho 对 colocado na maior margem livre do palco, entra em escala maior e assenta (Expo ease-out). Erro: rabisco de lápis azul-grafite. Fim de lição: selo de 112px a -6° com borda de 5px que carimba ao entrar. Em lição perfeita, a etapa ganha um selo 优 em tinta.
 
 ### Pranchas de ilustração
-- Twemoji reimpresso em tempo de execução, em duas tintas (tom de tinta para papel mais acento vermelho). Se mais de 12% da figura for vermelha, imprime tudo em tinta. Cada figura fica sobre uma prancha de papel com moldura de fio de 1px.
+- Twemoji em cores originais sobre uma prancha de papel com moldura de fio de 1px (o dono pediu cores em 17/11/2026; a versão em duas tintas saiu).
 
 ### Movimento
 - Curva principal: Expo ease-out (`cubic-bezier(.16, 1, .3, 1)` no CSS e `Expo.easeOut` no Phaser), 350 a 450ms. Gesto de assinatura: o carimbo assenta e a tinta corre pelo fio da trilha até o próximo nó. `prefers-reduced-motion` reduz as transições do CSS a 0,01ms e o Phaser pula as animações de entrada.
@@ -251,8 +260,9 @@ Cantos quase retos, como quinas de livro: 3px (numeração), 4px (botões, opç�
 - **Do** manter o vermelho de capa (#8a1a1c) na estrutura do livro: cabeçalho, abas de dedo e botões de chamada.
 - **Do** reservar o vermelho-carimbo (#b8231a) à etapa ativa, ao carimbo 对, ao estado de resposta certa e ao contorno do tom.
 - **Do** mostrar acerto como carimbo vermelho na maior margem livre e erro como risco de lápis azul-grafite (#34527a).
-- **Do** usar tinta para concluído, 优, grades das lições e ícones.
-- **Do** imprimir ilustrações em duas tintas sobre prancha de papel com moldura de fio; com mais de 12% de vermelho, tudo em tinta.
+- **Do** pintar pinyin e caracteres pela cor do tom, e esconder essa cor só onde ela entregaria a resposta.
+- **Do** usar a cor da unidade em aba, verbete e nós concluídos; tinta para 优, grades e ícones.
+- **Do** mostrar ilustrações coloridas sobre prancha de papel com moldura de fio.
 - **Do** manter alvos de 44px e contraste AA nos dois temas; estados diferem por forma e contorno, não só por matiz.
 - **Do** usar Expo ease-out e respeitar `prefers-reduced-motion`.
 
@@ -261,4 +271,4 @@ Cantos quase retos, como quinas de livro: 3px (numeração), 4px (botões, opç�
 - **Don't** mostrar erro em vermelho.
 - **Don't** usar o mapa de bolinhas coloridas sobre fundo branco do gênero, nem gradiente decorativo no miolo.
 - **Don't** trocar as famílias do verbete: hanzi fora de Song, pinyin fora do itálico serifado.
-- **Don't** pintar ilustrações em cores cheias de emoji; sempre duas tintas.
+- **Don't** usar cor de tom como decoração fora de pinyin e caracteres.

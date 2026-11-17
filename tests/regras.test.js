@@ -78,6 +78,17 @@ test('exercícios: toda lição gera exercícios válidos e a resposta certa con
   }
 });
 
+test('ouvir só aparece para o que tem som', () => {
+  const trilha = R.montarTrilha(UNIDADES);
+  const so = new Set(['你好', '谢谢']);
+  for (const l of trilha) {
+    for (const e of R.gerarExercicios(l, UNIDADES, { semente: 3, temVoz: (tx) => so.has(tx) })) {
+      if (e.tipo === 'ouvir') assert.ok(so.has(e.palavra.h), e.palavra.h);
+      if (e.ouvindo) assert.ok(so.has(R.textoFrase(e.frase)));
+    }
+  }
+});
+
 test('mesma semente, mesma lição', () => {
   const l = R.montarTrilha(UNIDADES)[3];
   assert.deepEqual(R.gerarExercicios(l, UNIDADES, { semente: 7 }), R.gerarExercicios(l, UNIDADES, { semente: 7 }));
@@ -130,4 +141,23 @@ test('aplicar tom na sílaba', () => {
   assert.equal(R.aplicarTom('guì', 2), 'guí');
   assert.equal(R.aplicarTom('lǜ', 3), 'lǚ');
   assert.equal(R.aplicarTom('tāng', 4), 'tàng');
+});
+
+test('sílabas do pinyin batem com o número de caracteres', () => {
+  assert.deepEqual(R.silabas('xièxie'), ['xiè', 'xie']);
+  assert.deepEqual(R.silabas('gōnggòng qìchē'), ['gōng', 'gòng', 'qì', 'chē']);
+  assert.deepEqual(R.silabas('piányi'), ['pián', 'yi']);
+  assert.deepEqual(R.silabas('nǎr'), ['nǎr']);
+  assert.deepEqual(R.tonsDe('nǐ hǎo'), [3, 3]);
+  const hz = (s) => [...s].filter((c) => /[\u3400-\u9fff]/.test(c)).length;
+  const erros = [];
+  for (const u of UNIDADES) {
+    for (const [h, p] of u.palavras) if (!R.tonsPorCaractere(h, p)) erros.push(`${h} ${p}`);
+    for (const f of u.frases) for (const [h, p] of f.t) if (!R.tonsPorCaractere(h, p)) erros.push(`${h} ${p}`);
+  }
+  for (const [, h, p] of GUIA) if (!R.tonsPorCaractere(h, p)) erros.push(`${h} ${p}`);
+  assert.deepEqual(R.tonsPorCaractere('哪儿', 'nǎr'), [3, 3]);
+  assert.deepEqual(R.tonsPorCaractere('你好！', 'Nǐ hǎo!'), [3, 3, null]);
+  assert.equal(hz('你好'), 2);
+  assert.deepEqual(erros, []);
 });
