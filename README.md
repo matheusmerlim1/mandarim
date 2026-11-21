@@ -12,10 +12,10 @@ com cara de dicionário Xinhua de bolso: cada lição é um verbete, cada unidad
 - **Exercícios**: palavra nova (imagem, hanzi na grade 田字格, pinyin, som), escolha do significado,
   escolha do caractere, ouvir e escolher, escrever o pinyin (aceita `nǐ hǎo` ou `ni3 hao3`), achar o tom,
   ligar pares, montar frases, traduzir frases. Errou: mostra a resposta e o exercício volta no fim.
-- **Vidas, pontos, meta diária e sequência de dias**, salvos só no navegador. Uma vida volta a cada 20 min,
+- **Vidas, pontos, meta diária e sequência de dias**, salvos só no navegador. Até 10 vidas; uma volta a cada 15 min,
   com relógio regressivo no cabeçalho, na trilha e na lição.
 - **Página Vidas** (toque no coração): tempo até a próxima vida e até todas, e maneiras de ganhar vidas
-  extras: treino relâmpago (acerte 4 de 5), desafio dos tons (acerte 5 de 6), meta do dia (30 pontos,
+  extras: treino relâmpago (acerte 4 de 5), desafio dos tons (acerte 4 de 6, comparando com mā má mǎ mà), meta do dia (30 pontos,
   uma vez por dia) e praticar uma lição já feita. Treinos não gastam vidas.
 - **Frases**: guia com 30 frases úteis (básico, restaurante, compras, transporte, emergência) com áudio.
 - **Tradutor** português ⇄ chinês com pinyin em cima de cada caractere, áudio e botão de copiar.

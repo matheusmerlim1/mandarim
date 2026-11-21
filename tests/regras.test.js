@@ -97,17 +97,19 @@ test('mesma semente, mesma lição', () => {
 test('vidas voltam com o tempo e treino devolve vida', () => {
   const t0 = new Date(2026, 10, 16, 10, 0).getTime();
   let p = R.progressoNovo();
+  const M = R.MINUTOS_POR_VIDA;
+  const MAX = R.VIDAS_MAX;
   p = R.perderVida(R.perderVida(p, t0), t0);
-  assert.equal(p.vidas, 3);
-  assert.equal(R.minutosParaVida(p, t0), 20);
-  p = R.atualizarRelogio(p, t0 + 21 * 60000);
-  assert.equal(p.vidas, 4);
-  p = R.atualizarRelogio(p, t0 + 45 * 60000);
-  assert.equal(p.vidas, 5);
+  assert.equal(p.vidas, MAX - 2);
+  assert.equal(R.minutosParaVida(p, t0), M);
+  p = R.atualizarRelogio(p, t0 + (M + 1) * 60000);
+  assert.equal(p.vidas, MAX - 1);
+  p = R.atualizarRelogio(p, t0 + (2 * M + 5) * 60000);
+  assert.equal(p.vidas, MAX);
   assert.equal(p.vidaDesde, null);
   p = R.perderVida(p, t0);
   const r = R.concluirLicao(p, 'x', { treino: true }, t0);
-  assert.equal(r.progresso.vidas, 5);
+  assert.equal(r.progresso.vidas, R.VIDAS_MAX);
   assert.equal(r.progresso.feitas.x, undefined);
 });
 
@@ -165,9 +167,10 @@ test('sílabas do pinyin batem com o número de caracteres', () => {
 test('timer das vidas', () => {
   const t0 = new Date(2026, 10, 17, 9, 0).getTime();
   let p = R.perderVida(R.perderVida(R.progressoNovo(), t0), t0);
-  assert.equal(R.segundosParaVida(p, t0), 1200);
-  assert.equal(R.segundosParaTodas(p, t0), 2400);
-  assert.equal(R.segundosParaVida(p, t0 + 61000), 1139);
+  const seg = R.MINUTOS_POR_VIDA * 60;
+  assert.equal(R.segundosParaVida(p, t0), seg);
+  assert.equal(R.segundosParaTodas(p, t0), 2 * seg);
+  assert.equal(R.segundosParaVida(p, t0 + 61000), seg - 61);
   assert.equal(R.formatarTempo(1139), '18:59');
   assert.equal(R.formatarTempo(3725), '1:02:05');
   assert.equal(R.segundosParaTodas(R.progressoNovo(), t0), 0);
@@ -180,10 +183,10 @@ test('meta do dia dá uma vida, uma vez por dia', () => {
   assert.equal(r.vidaMeta, false);
   r = R.concluirLicao(r.progresso, 'b', { erros: 0 }, t0); // 30
   assert.equal(r.vidaMeta, true);
-  assert.equal(r.progresso.vidas, 4);
+  assert.equal(r.progresso.vidas, R.VIDAS_MAX - 1);
   r = R.concluirLicao(r.progresso, 'c', { erros: 0 }, t0);
   assert.equal(r.vidaMeta, false);
-  assert.equal(r.progresso.vidas, 4);
+  assert.equal(r.progresso.vidas, R.VIDAS_MAX - 1);
 });
 
 test('treinos que valem vida', () => {
@@ -202,12 +205,37 @@ test('treinos que valem vida', () => {
   let p = R.perderVida(R.progressoNovo(), t0);
   let r = R.concluirTreinoVida(p, { acertos: 3, total: 5, minimo: 4 }, t0);
   assert.equal(r.ganhouVida, false);
-  assert.equal(r.progresso.vidas, 4);
+  assert.equal(r.progresso.vidas, R.VIDAS_MAX - 1);
   r = R.concluirTreinoVida(p, { acertos: 4, total: 5, minimo: 4 }, t0);
   assert.equal(r.ganhouVida, true);
-  assert.equal(r.progresso.vidas, 5);
+  assert.equal(r.progresso.vidas, R.VIDAS_MAX);
   assert.equal(r.progresso.vidaDesde, null);
   r = R.concluirTreinoVida(r.progresso, { acertos: 5, total: 5, minimo: 4 }, t0);
-  assert.equal(r.ganhouVida, false, 'vidas cheias não passam de 5');
-  assert.equal(r.progresso.vidas, 5);
+  assert.equal(r.ganhouVida, false, 'vidas cheias não passam do máximo');
+  assert.equal(r.progresso.vidas, R.VIDAS_MAX);
+});
+
+test('10 vidas a cada 15 min, e quem tinha 5 cheias ganha 10', () => {
+  assert.equal(R.VIDAS_MAX, 10);
+  assert.equal(R.MINUTOS_POR_VIDA, 15);
+  const t0 = new Date(2026, 10, 21, 9, 0).getTime();
+  const antigo = { versao: 1, feitas: {}, xp: 0, xpHoje: 0, dia: null, sequencia: 0, ultimoDia: null, vidas: 5, vidaDesde: null };
+  const cheio = R.lerProgresso(JSON.stringify(antigo));
+  assert.equal(cheio.vidas, 10);
+  assert.equal(cheio.vidaDesde, null);
+  const esperando = R.migrarVidas({ ...antigo, vidas: 2, vidaDesde: t0 }, t0);
+  assert.equal(esperando.vidas, 2);
+  assert.equal(esperando.vidaDesde, t0);
+  assert.equal(R.atualizarRelogio(esperando, t0 + 16 * 60000).vidas, 3);
+  assert.equal(R.migrarVidas(cheio), cheio, 'já migrado não muda');
+});
+
+test('exercício de tom nunca pede o neutro', () => {
+  const trilha = R.montarTrilha(UNIDADES);
+  for (const l of trilha) {
+    for (const e of R.gerarExercicios(l, UNIDADES, { semente: 11 })) if (e.tipo === 'tom') assert.notEqual(e.resposta, 5, e.palavra.h);
+  }
+  const t = R.gerarTreinoVida('tons', UNIDADES, trilha, R.progressoNovo(), { semente: 4 });
+  assert.equal(t.minimo, 4);
+  for (const e of t.exercicios) assert.notEqual(e.resposta, 5);
 });

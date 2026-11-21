@@ -231,7 +231,7 @@ Cantos quase retos, como quinas de livro: 3px (numeração), 4px (botões, opç�
 - Fixas à direita, 40x34px, na cor de cada unidade com numeral chinês branco; a unidade à vista alarga para 52px e ganha sombra. Cantos arredondados só no lado de fora.
 
 ### Opções de resposta
-- Folha branca, fio forte de 1px, 4px de canto, mínimo de 60px, numeração em caixinha. Selecionada: contorno interno de tinta de 2px. Certa: contorno de carimbo e fundo de carimbo. Errada: contorno de lápis, fundo de lápis e texto riscado. Opções de tom mostram a curva do tom como traço.
+- Folha branca, fio forte de 1px, 4px de canto, mínimo de 60px, numeração em caixinha. Selecionada: contorno interno de tinta de 2px. Certa: contorno de carimbo e fundo de carimbo. Errada: contorno de lápis, fundo de lápis e texto riscado. Opções de tom (só 1º a 4º; o neutro não entra) mostram a curva grande na cor do tom, a sílaba marcada, o nome do tom e uma dica em português; acima delas, a fileira “Compare com: mā má mǎ mà” toca os 4 tons de referência. Depois da resposta, a curva aparece na pauta do palco na cor do tom.
 
 ### Peças de montar
 - Peças de folha com fio e uma borda inferior de 2px; montagem sobre pauta de fio.

@@ -3,7 +3,7 @@
 // o fio da trilha, a grade 田字格, o carimbo do acerto e o risco de lápis do erro.
 // Cada caractere é pintado com a cor do seu tom; o fio feito leva a cor da unidade.
 
-import { tonsPorCaractere } from './regras.js?v=3';
+import { tonsPorCaractere } from './regras.js?v=4';
 
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
 const FONTE_HZ = '"Noto Serif SC", "Songti SC", "SimSun", serif';
@@ -430,7 +430,7 @@ export class CenaLicao extends Phaser.Scene {
     const todos = curvaTom.getPoints(40);
     const g = this.add.graphics();
     this.efeitos.add(g);
-    const desenha = (k) => { g.clear().lineStyle(tomN === 5 ? 3 : 5, this.c.carimbo, 1); g.strokePoints(todos.slice(0, Math.max(2, k))); };
+    const desenha = (k) => { g.clear().lineStyle(tomN === 5 ? 3 : 5, Phaser.Display.Color.HexStringToColor(this.c.tom[tomN] || this.c.css.carimbo).color, 1); g.strokePoints(todos.slice(0, Math.max(2, k))); };
     if (reduzir()) return desenha(todos.length);
     this.tweens.addCounter({ from: 2, to: todos.length, duration: 520, ease: 'Sine.easeInOut', onUpdate: (tw) => desenha(Math.round(tw.getValue())) });
   }

@@ -136,8 +136,8 @@ button { font: inherit; color: inherit; }
 .faixa-vidas strong { font-variant-numeric: tabular-nums; }
 .faixa-vidas a { font-weight: 700; }
 .licao-timer { font-weight: 600; font-size: .85rem; color: var(--tinta-2); margin-left: .3rem; font-variant-numeric: tabular-nums; }
-.vidas-coracoes { display: flex; gap: .4rem; margin: .5rem 0 .8rem; }
-.vidas-coracoes svg { width: 38px; height: 38px; }
+.vidas-coracoes { display: flex; flex-wrap: wrap; gap: .3rem; margin: .5rem 0 .8rem; }
+.vidas-coracoes svg { width: 32px; height: 32px; }
 .vidas-coracoes .cheio { fill: var(--t1); }
 .vidas-coracoes .vazio { fill: none; stroke: var(--fio-forte); stroke-width: 1.6; }
 .vidas-estado { font-size: 1.1rem; margin: 0 0 2rem; max-width: 60ch; }
@@ -338,7 +338,15 @@ body.em-licao .capa, body.em-licao .rodape, body.em-licao #mr-portfolio-btn { di
 .opcao:disabled { cursor: default; }
 .opcoes-tons { grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); }
 .opcoes-tons .opcao { flex-direction: column; align-items: flex-start; gap: .2rem; }
-.opcoes-tons .curva { width: 54px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+.opcoes-tons .curva { width: 72px; height: 34px; stroke: currentColor; fill: none; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+.opcoes-tons .sil { font: italic 600 1.6rem/1.1 var(--f-py); }
+.opcoes-tons .tom-nome { font: 700 .95rem/1.2 var(--f-ui); }
+.opcoes-tons .py-mini { line-height: 1.3; }
+.tons-ref { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.tons-ref-rotulo { font-weight: 600; color: var(--tinta-2); margin-right: .2rem; }
+.tom-ref { display: inline-flex; align-items: center; gap: .35rem; min-height: 44px; padding: .35rem .8rem; border: 1px solid var(--fio-forte); border-radius: 999px; background: var(--folha); cursor: pointer; font: italic 600 1.15rem/1 var(--f-py); }
+.tom-ref svg { width: 18px; height: 18px; color: currentColor; }
+.tom-ref:hover { background: var(--papel-2); }
 
 .campo-pinyin {
   width: 100%; min-height: 56px; padding: .6rem .9rem; font: italic 400 1.4rem/1.2 var(--f-py);

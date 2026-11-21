@@ -1,14 +1,23 @@
-import { UNIDADES, NIVEIS, GUIA } from './dados.js?v=3';
-import * as R from './regras.js?v=3';
-import { prepararVoz, podeOuvir, falar, falarPt } from './voz.js?v=3';
-import { traduzir, pinyinPorCaractere, pinyinFrase as pinyinTexto, temChines } from './tradutor.js?v=3';
-import { criarJogo, CenaTrilha, CenaLicao } from './cenas.js?v=3';
+import { UNIDADES, NIVEIS, GUIA } from './dados.js?v=4';
+import * as R from './regras.js?v=4';
+import { prepararVoz, podeOuvir, falar, falarPt } from './voz.js?v=4';
+import { traduzir, pinyinPorCaractere, pinyinFrase as pinyinTexto, temChines } from './tradutor.js?v=4';
+import { criarJogo, CenaTrilha, CenaLicao } from './cenas.js?v=4';
 
 const $ = (s, el = document) => el.querySelector(s);
 const CHAVE = 'mandarim.v1';
 const NUM_HZ = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五'];
 const TIPO_NOME = { palavras: 'Palavras novas', frases: 'Frases', revisao: 'Revisão', tons: 'Treino de tons' };
 const TOM_NOME = { 1: '1º tom — alto e reto', 2: '2º tom — sobe', 3: '3º tom — desce e sobe', 4: '4º tom — cai', 5: 'Neutro — curto e leve' };
+// Dica de cada tom com algo que o brasileiro já faz ao falar.
+const TOM_DICA = {
+  1: 'agudo e reto, como cantar “lááá” numa nota só',
+  2: 'sobe, como quem pergunta “hein?”',
+  3: 'desce e volta, como um “ahh…” desconfiado',
+  4: 'cai seco, como uma ordem: “Pare!”',
+};
+// Referência: os 4 tons da mesma sílaba "ma".
+const TOM_REF = [['妈', 'mā'], ['麻', 'má'], ['马', 'mǎ'], ['骂', 'mà']];
 const TOM_CURVA = { 1: 'M4 6 H50', 2: 'M4 18 L50 4', 3: 'M4 12 Q20 26 30 22 T50 6', 4: 'M4 4 L50 22', 5: 'M22 14 H32' };
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -294,7 +303,7 @@ function mostrarExercicio() {
       html = `<div class="cartao-novo">
         <span class="py" lang="zh-Latn-pinyin">${pyc(p.p)}</span>
         <span class="pt">${esc(p.pt)}</span>
-        ${[...p.h].length === 1 && p.p.indexOf(' ') < 0 ? `<span class="tons">${TOM_NOME[R.tomDaSilaba(p.p)]}</span>` : ''}
+        ${[...p.h].length === 1 && p.p.indexOf(' ') < 0 ? `<span class="tons">${TOM_NOME[R.tomDaSilaba(p.p)]}${TOM_DICA[R.tomDaSilaba(p.p)] ? ` — ${TOM_DICA[R.tomDaSilaba(p.p)]}` : ''}</span>` : ''}
       </div><div class="linha-som">${botaoSom(p.h)}</div>`;
       bv.textContent = 'Continuar';
       bv.disabled = false;
@@ -331,13 +340,19 @@ function mostrarExercicio() {
     case 'tom': {
       titulo = `Qual é o tom de ${hz(p.h)}?`;
       rotuloPalco = `O caractere ${p.h} e uma pauta de alturas da voz`;
-      html = `<div class="linha-som">${botaoSom(p.h)}</div><div class="opcoes opcoes-tons">` + [1, 2, 3, 4, 5].map((n, k) =>
+      html = `<div class="linha-som">${botaoSom(p.h)}</div>
+        <div class="tons-ref" role="group" aria-label="Compare com os 4 tons de ma">
+          <span class="tons-ref-rotulo">Compare com:</span>
+          ${TOM_REF.map(([h, py], k) => `<button type="button" class="tom-ref t${k + 1}" data-falar="${h}" aria-label="Ouvir ${py}, ${k + 1}º tom"><svg aria-hidden="true"><use href="#i-som"/></svg><span lang="zh-Latn-pinyin">${py}</span></button>`).join('')}
+        </div>
+        <div class="opcoes opcoes-tons">` + [1, 2, 3, 4].map((n, k) =>
         `<button type="button" class="opcao" data-op="${k}" aria-pressed="false">
           <span class="n" aria-hidden="true">${k + 1}</span>
-          <svg class="curva" viewBox="0 0 54 26" aria-hidden="true"><path d="${TOM_CURVA[n]}"/></svg>
-          <span lang="zh-Latn-pinyin">${esc(R.aplicarTom(p.p, n))}</span>
-          <span class="py-mini">${TOM_NOME[n]}</span></button>`).join('') + '</div>';
-      ex.valores = [1, 2, 3, 4, 5];
+          <svg class="curva t${n}" viewBox="0 0 54 26" aria-hidden="true"><path d="${TOM_CURVA[n]}"/></svg>
+          <span class="sil t${n}" lang="zh-Latn-pinyin">${esc(R.aplicarTom(p.p, n))}</span>
+          <span class="tom-nome">${n}º tom</span>
+          <span class="py-mini">${TOM_DICA[n]}</span></button>`).join('') + '</div>';
+      ex.valores = [1, 2, 3, 4];
       falarAoAbrir = p.h;
       break;
     }

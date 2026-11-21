@@ -1,8 +1,9 @@
 // Regras do curso, sem Phaser e sem DOM: trilha, exercícios, correção, vidas, XP e sequência.
 // Roda no navegador e no Node (node --test tests/).
 
-export const VIDAS_MAX = 5;
-export const MINUTOS_POR_VIDA = 20;
+export const VIDAS_MAX = 10;
+export const MINUTOS_POR_VIDA = 15;
+const VIDAS_MAX_ANTIGO = 5; // até 21/11/2026 eram 5 vidas
 export const META_DIARIA = 30;
 export const XP_LICAO = 10;
 export const XP_PERFEITA = 5;
@@ -173,6 +174,7 @@ function exercicioPalavra(tipo, p, mesmas, todas, rnd) {
 }
 
 const ehUmaSilaba = (p) => [...p.h].length === 1 && !/\s/.test(p.p);
+const temTom = (p) => ehUmaSilaba(p) && tomDaSilaba(p.p) !== 5;
 
 export function gerarExercicios(licao, unidades, { semente, temVoz = true } = {}) {
   const rnd = criarSorteio(semente);
@@ -185,7 +187,7 @@ export function gerarExercicios(licao, unidades, { semente, temVoz = true } = {}
   const tiposExtra = (p) => {
     const t = ['ptHanzi', 'pinyin', 'hanziPt'];
     if (ouve(p.h)) t.push('ouvir', 'ouvir');
-    if (ehUmaSilaba(p)) t.push('tom');
+    if (temTom(p)) t.push('tom');
     return t;
   };
 
@@ -203,7 +205,7 @@ export function gerarExercicios(licao, unidades, { semente, temVoz = true } = {}
       ...u.palavras.map((_, i) => daUnidade[i]),
       ...TREINO_TONS.map(([h, p, pt]) => ({ h, p, pt, img: null, u: licao.unidade, i: -1 })),
     ];
-    rnd.embaralhar(treino).slice(0, 10).forEach((p) => ex.push({ tipo: 'tom', palavra: p, resposta: tomDaSilaba(p.p) }));
+    rnd.embaralhar(treino.filter(temTom)).slice(0, 10).forEach((p) => ex.push({ tipo: 'tom', palavra: p, resposta: tomDaSilaba(p.p) }));
   } else if (licao.tipo === 'frases') {
     u.frases.forEach((f) => {
       ex.push({ tipo: 'traduzir', frase: f, opcoes: rnd.embaralhar([f, ...distratoresFrase(f, unidades, rnd)]) });
@@ -265,7 +267,7 @@ export function conferir(ex, resposta) {
 
 // ---------- progresso ----------
 export function progressoNovo() {
-  return { versao: 1, feitas: {}, xp: 0, xpHoje: 0, dia: null, sequencia: 0, ultimoDia: null, vidas: VIDAS_MAX, vidaDesde: null };
+  return { versao: 1, feitas: {}, xp: 0, xpHoje: 0, dia: null, sequencia: 0, ultimoDia: null, vidas: VIDAS_MAX, vidasMax: VIDAS_MAX, vidaDesde: null };
 }
 
 export const diaDe = (data) => {
@@ -348,7 +350,7 @@ export function concluirLicao(prog, licaoId, { erros = 0, treino = false } = {},
 export const XP_TREINO_VIDA = 5;
 export const TREINOS_VIDA = {
   relampago: { titulo: 'Treino relâmpago', perguntas: 5, minimo: 4 },
-  tons: { titulo: 'Desafio dos tons', perguntas: 6, minimo: 5 },
+  tons: { titulo: 'Desafio dos tons', perguntas: 6, minimo: 4 },
 };
 
 // Segundos até a próxima vida e até completar todas (0 quando já estão cheias).
@@ -391,9 +393,9 @@ export function gerarTreinoVida(modo, unidades, trilha, prog, { semente, temVoz 
   let ex;
   if (modo === 'tons') {
     const pool = [
-      ...estudadas.filter(ehUmaSilaba),
+      ...estudadas.filter(temTom),
       ...TREINO_TONS.map(([h, p, pt]) => ({ h, p, pt, img: null, u: 0, i: -1 })),
-    ];
+    ].filter(temTom);
     const vistos = new Set();
     ex = rnd.embaralhar(pool).filter((p) => !vistos.has(p.h) && vistos.add(p.h)).slice(0, cfg.perguntas)
       .map((p) => ({ tipo: 'tom', palavra: p, resposta: tomDaSilaba(p.p) }));
@@ -418,11 +420,21 @@ export function concluirTreinoVida(prog, { acertos, total, minimo }, agora = Dat
   return { progresso: p, ganho: XP_TREINO_VIDA, passou, ganhouVida: passou && !cheias, vidaMeta, total };
 }
 
+// O máximo de vidas subiu de 5 para 10: quem estava cheio fica cheio; quem estava
+// esperando continua recuperando até o novo máximo.
+export function migrarVidas(p, agora = Date.now()) {
+  if ((p.vidasMax || VIDAS_MAX_ANTIGO) >= VIDAS_MAX) return p;
+  const q = { ...p, vidasMax: VIDAS_MAX };
+  if (q.vidas >= (p.vidasMax || VIDAS_MAX_ANTIGO)) { q.vidas = VIDAS_MAX; q.vidaDesde = null; }
+  else if (!q.vidaDesde) q.vidaDesde = agora;
+  return q;
+}
+
 export function lerProgresso(texto) {
   try {
     const p = JSON.parse(texto);
     if (!p || p.versao !== 1 || typeof p.feitas !== 'object') return progressoNovo();
-    return { ...progressoNovo(), ...p };
+    return migrarVidas({ ...progressoNovo(), ...p, vidasMax: p.vidasMax });
   } catch {
     return progressoNovo();
   }

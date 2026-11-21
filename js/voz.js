@@ -1,6 +1,6 @@
 // Som: arquivos MP3 em voz neural (audio/*.mp3, índice em audios.js) para cada palavra e frase;
 // se faltar o arquivo ou ele não tocar, usa a voz chinesa do próprio navegador (Web Speech API).
-import { AUDIOS } from './audios.js?v=3';
+import { AUDIOS } from './audios.js?v=4';
 
 const PREFERIDAS = [/xiaoxiao/i, /yunxi/i, /google.*(普通话|mandarin|中文)/i, /huihui/i, /yaoyao/i, /kangkang/i, /ting-?ting/i, /li-?mu/i];
 let voz = null;
